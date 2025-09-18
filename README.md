@@ -47,7 +47,7 @@ pip install -r requirements.txt
 
 ```bash
 # Download the 5GB VGGT model
-python download_model.py
+python scripts/download_model.py
 ```
 
 Or manually download from [Hugging Face](https://huggingface.co/facebook/VGGT-1B/resolve/main/model.pt)
@@ -55,7 +55,7 @@ Or manually download from [Hugging Face](https://huggingface.co/facebook/VGGT-1B
 ### 3. Test MPS Support
 
 ```bash
-python test_vggt_mps.py
+python tests/test_vggt_mps.py
 ```
 
 Expected output:
@@ -70,10 +70,10 @@ Expected output:
 
 ```bash
 # Create test images
-python create_test_images.py
+python examples/create_test_images.py
 
 # Run 3D reconstruction demo
-python demo_vggt_mps.py
+python examples/demo_vggt_mps.py
 ```
 
 ## 🔧 MCP Server Integration
@@ -117,26 +117,31 @@ python demo_vggt_mps.py
 
 ```
 vggt-mps/
-├── src/
-│   ├── vggt_mps_mcp.py          # MCP server
-│   └── tools/
-│       ├── readme.py            # Quick inference tool
-│       ├── demo_gradio.py       # Gradio interface tools
-│       ├── demo_viser.py        # 3D visualization tools
-│       └── demo_colmap.py       # COLMAP integration
-├── repo/vggt/
-│   ├── hubconf.py               # Torch hub configuration
-│   └── vggt_model.pt            # Model weights (5GB)
-├── tmp/
-│   ├── inputs/                  # Input images
-│   └── outputs/                 # Results
-├── test_vggt_mps.py            # MPS test script
-├── demo_vggt_mps.py            # 3D reconstruction demo
-├── create_test_images.py       # Generate test data
-├── download_model.py           # Model downloader
-├── test_hub_load.py            # Hub loading test
-├── vggt_mps_inference.py       # Direct inference script
-└── requirements.txt            # Python dependencies
+├── src/                         # Source code
+│   ├── vggt_mps_mcp.py         # MCP server
+│   └── tools/                   # VGGT tools (11 total)
+│       ├── readme.py           # Quick inference
+│       ├── demo_gradio.py      # Video & 3D tools
+│       ├── demo_viser.py       # Visualization
+│       └── demo_colmap.py      # COLMAP integration
+├── examples/                    # Example scripts
+│   ├── demo_vggt_mps.py       # Main demo
+│   ├── create_test_images.py  # Generate test data
+│   └── vggt_mps_inference.py  # Direct inference
+├── tests/                       # Test scripts
+│   ├── test_vggt_mps.py       # MPS test
+│   └── test_hub_load.py       # Hub loading test
+├── scripts/                     # Utility scripts
+│   └── download_model.py      # Model downloader
+├── repo/vggt/                   # VGGT source
+│   ├── hubconf.py              # Torch hub config
+│   └── vggt_model.pt          # Model (5GB)
+├── tmp/                         # Working directory
+│   ├── inputs/                 # Input images
+│   └── outputs/                # Results
+├── requirements.txt             # Dependencies
+├── README.md                    # Documentation
+└── LICENSE                      # MIT License
 ```
 
 ## 🖼️ Usage Examples

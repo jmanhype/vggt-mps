@@ -7,7 +7,6 @@ Transform single or multi-view images into rich 3D reconstructions using Faceboo
 ## ✨ Features
 
 - **🚀 MPS Acceleration**: Full GPU acceleration on Apple Silicon using Metal Performance Shaders
-- **⚡ Sparse Attention**: O(n) memory scaling for city-scale reconstruction (100x savings!)
 - **🎥 Multi-View 3D Reconstruction**: Generate depth maps, point clouds, and camera poses from images
 - **🔧 MCP Integration**: Model Context Protocol server for Claude Desktop integration
 - **📦 5GB Model**: Efficient 1B parameter model that runs smoothly on Apple Silicon
@@ -75,9 +74,6 @@ python examples/create_test_images.py
 
 # Run 3D reconstruction demo
 python examples/demo_vggt_mps.py
-
-# Test sparse attention (O(n) scaling)
-python tests/sparse_attention/test_sparse_vggt_final.py
 ```
 
 ## 🔧 MCP Server Integration
@@ -185,36 +181,6 @@ result = vggt_reconstruct_3d_scene(
     confidence_threshold=0.5
 )
 ```
-
-## ⚡ Sparse Attention - NEW!
-
-**City-scale 3D reconstruction is now possible!** We've implemented Gabriele Berton's research idea for O(n) memory scaling.
-
-### 🎯 Key Benefits
-- **100x memory savings** for 1000 images
-- **No retraining required** - patches existing VGGT at runtime
-- **Identical outputs** to regular VGGT (0.000000 difference)
-- **MegaLoc covisibility** detection for smart attention masking
-
-### 🚀 Usage
-```python
-from src.vggt_sparse_attention import make_vggt_sparse
-
-# Convert any VGGT to sparse in 1 line
-sparse_vggt = make_vggt_sparse(regular_vggt, device="mps")
-
-# Same usage, O(n) memory instead of O(n²)
-output = sparse_vggt(images)  # Handles 1000+ images!
-```
-
-### 📊 Memory Scaling
-| Images | Regular | Sparse | Savings |
-|--------|---------|--------|---------|
-| 100    | O(10K)  | O(1K)  | **10x** |
-| 500    | O(250K) | O(5K)  | **50x** |
-| 1000   | O(1M)   | O(10K) | **100x** |
-
-**See full results:** [docs/SPARSE_ATTENTION_RESULTS.md](docs/SPARSE_ATTENTION_RESULTS.md)
 
 ## 🔬 Technical Details
 

@@ -51,7 +51,9 @@ def vggt_quick_start_inference(
     images_dir: Annotated[str | None, "Path to directory containing input images (.png, .jpg, .jpeg). The directory should contain the image files to process."] = None,
     # Analysis parameters with tutorial defaults
     max_images: Annotated[int, "Maximum number of images to process"] = 3,
-    device: Annotated[Literal["auto", "cuda", "cpu"], "Computation device"] = "auto",
+    device: Annotated[Literal["auto", "cuda", "cpu", "mps"], "Computation device"] = "auto",
+    use_sparse_attention: Annotated[bool, "Use sparse attention for O(n) scaling (experimental)"] = False,
+    sparse_k_nearest: Annotated[int, "Number of nearest neighbors for sparse attention"] = 10,
     out_prefix: Annotated[str | None, "Output file prefix"] = None,
 ) -> dict:
     """
@@ -126,6 +128,21 @@ def vggt_quick_start_inference(
     log_messages.append("Loading VGGT model...")
     model = VGGT.from_pretrained("facebook/VGGT-1B").to(device)
     log_messages.append("Model loaded successfully!")
+
+    # Apply sparse attention if requested
+    if use_sparse_attention:
+        log_messages.append(f"Enabling sparse attention with k={sparse_k_nearest} nearest neighbors...")
+        try:
+            # Import sparse attention module
+            sys.path.insert(0, str(PROJECT_ROOT / "src"))
+            from vggt_sparse_attention import make_vggt_sparse
+
+            # Convert to sparse attention
+            model = make_vggt_sparse(model, device=device)
+            log_messages.append("✅ Sparse attention enabled - O(n) memory scaling!")
+        except ImportError as e:
+            log_messages.append(f"⚠️ Could not enable sparse attention: {e}")
+            log_messages.append("Continuing with regular attention...")
 
     # Load and preprocess the images
     log_messages.append("Loading and preprocessing images...")

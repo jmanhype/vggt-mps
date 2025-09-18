@@ -1,0 +1,16 @@
+@gabriberton This is brilliant! The covisibility-based attention masking is exactly what VGGT needs for scale.
+
+I've been working on the MPS port and this could be perfect - Metal actually has decent sparse matrix ops (MPSGraphSparseOps) that could make masked attention efficient.
+
+Quick thoughts:
+- MegaLoc on MPS for feature extraction
+- Block-sparse attention patterns for Metal SIMD
+- Graph connectivity checks to prevent scene splitting
+
+For n=1000 images with k=10 nearest neighbors, we'd get ~100x memory reduction. That makes city-scale reconstruction feasible on M3 Max!
+
+Would love to collaborate on this - I can start with MegaLoc MPS port and sparse attention implementation. The graph heuristics you mentioned are key.
+
+Created a research doc here: github.com/jmanhype/vggt-mps/scaling_vggt_research.md
+
+This could genuinely democratize large-scale 3D reconstruction!

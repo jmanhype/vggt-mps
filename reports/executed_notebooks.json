@@ -1,0 +1,18 @@
+{
+  "readme": {
+    "execution_path": "notebooks/readme/readme_execution_final.ipynb",
+    "http_url": "https://github.com/facebookresearch/vggt/blob/main/README.md"
+  },
+  "demo_gradio": {
+    "execution_path": "notebooks/demo_gradio/demo_gradio_execution_final.ipynb",
+    "http_url": "https://github.com/facebookresearch/vggt/blob/main/demo_gradio.py"
+  },
+  "demo_viser": {
+    "execution_path": "notebooks/demo_viser/demo_viser_execution_final.ipynb",
+    "http_url": "https://github.com/facebookresearch/vggt/blob/main/demo_viser.py"
+  },
+  "demo_colmap": {
+    "execution_path": "notebooks/demo_colmap/demo_colmap_execution_final.ipynb",
+    "http_url": "https://github.com/facebookresearch/vggt/blob/main/demo_colmap.py"
+  }
+}

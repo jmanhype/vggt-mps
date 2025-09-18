@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+vggt-env/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Model weights (large files)
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+repo/vggt/vggt_model.pt
+
+# Data
+tmp/
+*.jpg
+*.png
+*.mp4
+*.avi
+*.mov
+*.npz
+*.csv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# MCP
+.mcp_cache/
+
+# Outputs
+outputs/
+results/
+*.glb
+*.ply
+*.obj

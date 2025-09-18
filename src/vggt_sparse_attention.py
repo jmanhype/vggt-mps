@@ -34,13 +34,22 @@ class SparseAttentionAggregator(nn.Module):
     def set_covisibility_mask(self, images: torch.Tensor):
         """Precompute covisibility mask for current batch"""
         with torch.no_grad():
-            # Extract MegaLoc features
+            # Handle both [S, C, H, W] and [B, S, C, H, W] formats
+            if images.ndim == 4:
+                # Single batch case [S, C, H, W]
+                images = images.unsqueeze(0)  # [1, S, C, H, W]
+
             B, S = images.shape[:2]
             features = []
-            for i in range(S):
-                feat = self.megaloc.extract_features(images[:, i])
-                features.append(feat)
-            features = torch.stack(features, dim=1)  # [B, S, D]
+            for b in range(B):
+                batch_features = []
+                for i in range(S):
+                    # Extract single image [C, H, W] and add batch dim
+                    single_image = images[b, i].unsqueeze(0)  # [1, C, H, W]
+                    feat = self.megaloc.extract_features(single_image)
+                    batch_features.append(feat.squeeze(0))  # Remove batch dim
+                features.append(torch.stack(batch_features))  # [S, D]
+            features = torch.stack(features)  # [B, S, D]
 
             # Compute covisibility for each batch
             masks = []

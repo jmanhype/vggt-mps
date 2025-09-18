@@ -32,7 +32,7 @@ VGGT reconstructs 3D scenes from images by predicting:
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/yourusername/vggt-mps.git
+git clone https://github.com/jmanhype/vggt-mps.git
 cd vggt-mps
 
 # Create virtual environment
@@ -40,8 +40,7 @@ python -m venv vggt-env
 source vggt-env/bin/activate
 
 # Install dependencies
-pip install torch torchvision numpy pillow matplotlib trimesh
-pip install fastmcp  # For MCP server
+pip install -r requirements.txt
 ```
 
 ### 2. Download Model Weights
@@ -96,7 +95,7 @@ python demo_vggt_mps.py
         "fastmcp",
         "fastmcp",
         "run",
-        "/path/to/vggt-mps/src/paper2agent_mcp.py"
+        "/path/to/vggt-mps/src/vggt_mps_mcp.py"
       ]
     }
   }
@@ -119,7 +118,7 @@ python demo_vggt_mps.py
 ```
 vggt-mps/
 ├── src/
-│   ├── paper2agent_mcp.py      # MCP server
+│   ├── vggt_mps_mcp.py          # MCP server
 │   └── tools/
 │       ├── readme.py            # Quick inference tool
 │       ├── demo_gradio.py       # Gradio interface tools
@@ -133,7 +132,11 @@ vggt-mps/
 │   └── outputs/                 # Results
 ├── test_vggt_mps.py            # MPS test script
 ├── demo_vggt_mps.py            # 3D reconstruction demo
-└── create_test_images.py       # Generate test data
+├── create_test_images.py       # Generate test data
+├── download_model.py           # Model downloader
+├── test_hub_load.py            # Hub loading test
+├── vggt_mps_inference.py       # Direct inference script
+└── requirements.txt            # Python dependencies
 ```
 
 ## 🖼️ Usage Examples
@@ -231,7 +234,7 @@ MIT License - See LICENSE file for details
 
 - Facebook Research for VGGT
 - Apple for Metal Performance Shaders
-- Paper2Agent for the automation framework
+- PyTorch team for MPS backend
 
 ---
 

@@ -54,25 +54,61 @@ plt.show()
 print("\n🔮 Running VGGT 3D Reconstruction...")
 print("-" * 60)
 
-# Simulate VGGT processing (simplified for demo)
-# In real usage, this would use the full VGGT model
+# Use real VGGT model
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / "repo" / "vggt"))
+from vggt.models.vggt import VGGT
+from vggt.utils.load_fn import load_and_preprocess_images
 
-# Generate simulated depth maps
-depth_maps = []
+# MPS doesn't support bfloat16, use float32
+dtype = torch.float32 if device.type == "mps" else torch.float16
+
+# Load the real VGGT model
+print("📥 Loading VGGT-1B model (5GB)...")
+model_path = Path(__file__).parent.parent / "repo" / "vggt" / "vggt_model.pt"
+if model_path.exists():
+    print(f"📂 Loading from local: {model_path}")
+    model = VGGT()
+    checkpoint = torch.load(model_path, map_location=device)
+    model.load_state_dict(checkpoint)
+    model = model.to(device)
+else:
+    print("📥 Downloading from HuggingFace...")
+    model = VGGT.from_pretrained("facebook/VGGT-1B").to(device)
+
+model.eval()
+print("✅ Model loaded successfully!")
+
+# Save images temporarily for VGGT loader
+temp_paths = []
 for i, img in enumerate(images):
-    # Create a simple depth gradient (simulating depth estimation)
-    h, w = img.shape[:2]
-    y_coords = np.linspace(0, 1, h).reshape(h, 1)
-    x_coords = np.linspace(0, 1, w).reshape(1, w)
+    temp_path = output_dir / f"temp_input_{i:03d}.jpg"
+    Image.fromarray(img).save(temp_path)
+    temp_paths.append(str(temp_path))
 
-    # Create depth based on position (farther at top, closer at bottom)
-    depth = 5.0 + y_coords * 3.0 + np.sin(x_coords * np.pi) * 0.5
+# Load and preprocess with VGGT's loader
+print("🖼️ Preprocessing images...")
+input_images = load_and_preprocess_images(temp_paths).to(device)
 
-    # Add some variation based on image content
-    gray = np.mean(img, axis=2) / 255.0
-    depth = depth * (1.0 + gray * 0.2)
+# Run real VGGT inference
+print("🧠 Running VGGT inference on MPS...")
+with torch.no_grad():
+    if device.type == "mps":
+        # MPS doesn't support autocast
+        predictions = model(input_images)
+    else:
+        with torch.cuda.amp.autocast(dtype=dtype):
+            predictions = model(input_images)
 
-    depth_maps.append(depth)
+# Extract real depth maps from predictions
+depth_tensor = predictions['depth'].cpu().numpy()
+depth_maps = [depth_tensor[0, i, :, :, 0] for i in range(depth_tensor.shape[1])]
+
+# Clean up temp files
+for path in temp_paths:
+    Path(path).unlink()
+
+print("✅ Real VGGT inference complete!")
 
 # Display depth maps
 fig, axes = plt.subplots(1, len(depth_maps), figsize=(16, 4))

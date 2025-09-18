@@ -17,31 +17,25 @@ class VGGTModelMPS:
         self.device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
         print(f"Using device: {self.device}")
 
-        # Load model weights
-        self.checkpoint = torch.load(model_path, map_location=self.device)
-        print(f"Model loaded with {len(self.checkpoint)} keys")
+        # Import real VGGT
+        import sys
+        sys.path.insert(0, str(Path(__file__).parent.parent / "repo" / "vggt"))
+        from vggt.models.vggt import VGGT
 
-        # Initialize a simple model structure for demo
-        # (Real VGGT would need the full model architecture)
-        self.model = self._build_simple_model()
+        # Load the real VGGT model
+        model_path = Path(__file__).parent.parent / model_path
+        if model_path.exists():
+            print(f"📂 Loading VGGT from: {model_path}")
+            self.model = VGGT()
+            checkpoint = torch.load(model_path, map_location=self.device)
+            self.model.load_state_dict(checkpoint)
+            self.model = self.model.to(self.device)
+        else:
+            print("📥 Downloading VGGT from HuggingFace...")
+            self.model = VGGT.from_pretrained("facebook/VGGT-1B").to(self.device)
 
-    def _build_simple_model(self):
-        """Build a simplified model for demonstration"""
-        # This is a placeholder - real VGGT has complex architecture
-        model = nn.Sequential(
-            nn.Conv2d(3, 64, 7, stride=2, padding=3),
-            nn.ReLU(),
-            nn.MaxPool2d(3, stride=2, padding=1),
-            nn.Conv2d(64, 128, 3, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(128, 256, 3, padding=1),
-            nn.AdaptiveAvgPool2d(1),
-            nn.Flatten(),
-            nn.Linear(256, 512),
-            nn.ReLU(),
-            nn.Linear(512, 7)  # Output: depth, camera params
-        ).to(self.device)
-        return model
+        self.model.eval()
+        print("✅ Real VGGT model loaded successfully!")
 
     def preprocess_image(self, image_path: str) -> torch.Tensor:
         """Preprocess image for VGGT"""
@@ -61,71 +55,55 @@ class VGGTModelMPS:
 
     def infer(self, image_paths: List[str]) -> Dict[str, Any]:
         """Run VGGT inference on images"""
+        # Import VGGT's loader
+        from vggt.utils.load_fn import load_and_preprocess_images
+
+        # Load and preprocess all images at once
+        print("🖼️ Loading and preprocessing images...")
+        input_images = load_and_preprocess_images(image_paths).to(self.device)
+
+        # Run real VGGT inference
+        print("🧠 Running VGGT inference...")
+        with torch.no_grad():
+            if self.device.type == "mps":
+                # MPS doesn't support autocast
+                predictions = self.model(input_images)
+            else:
+                dtype = torch.float16
+                with torch.cuda.amp.autocast(dtype=dtype):
+                    predictions = self.model(input_images)
+
+        # Extract results from predictions
         results = {
-            'camera_poses': [],
-            'depth_maps': [],
-            'point_clouds': []
+            'camera_poses': predictions['pose_enc'].cpu().numpy(),
+            'depth_maps': predictions['depth'].cpu().numpy()[0, :, :, :, 0],  # [S, H, W]
+            'world_points': predictions['world_points'].cpu().numpy(),
+            'confidence': predictions['depth_conf'].cpu().numpy()
         }
 
-        self.model.eval()
-        with torch.no_grad():
-            for path in image_paths:
-                print(f"Processing: {path}")
+        # Generate point clouds from world points
+        point_clouds = []
+        for i in range(results['world_points'].shape[1]):
+            points = results['world_points'][0, i].reshape(-1, 3)
+            conf = results['confidence'][0, i].reshape(-1)
+            # Filter by confidence
+            mask = conf > 0.5
+            points = points[mask]
+            # Subsample if too many
+            if len(points) > 10000:
+                idx = np.random.choice(len(points), 10000, replace=False)
+                points = points[idx]
+            point_clouds.append(points)
 
-                # Preprocess
-                img_tensor = self.preprocess_image(path)
+        results['point_clouds'] = point_clouds
 
-                # Inference (simplified)
-                output = self.model(img_tensor)
-
-                # Parse outputs (placeholder values)
-                camera_pose = output[:, :6].cpu().numpy()  # 6DOF pose
-                depth_scale = output[:, 6:7].cpu().numpy()  # Depth scale
-
-                # Generate synthetic depth map for demo
-                h, w = 480, 640
-                depth_map = self._generate_depth_map(h, w, depth_scale[0, 0])
-
-                # Generate point cloud from depth
-                points = self._depth_to_pointcloud(depth_map)
-
-                results['camera_poses'].append(camera_pose)
-                results['depth_maps'].append(depth_map)
-                results['point_clouds'].append(points)
+        print(f"✅ Processed {len(image_paths)} images")
+        print(f"   - Camera poses: {results['camera_poses'].shape}")
+        print(f"   - Depth maps: {results['depth_maps'].shape}")
+        print(f"   - Point clouds: {len(point_clouds)} clouds")
 
         return results
 
-    def _generate_depth_map(self, h: int, w: int, scale: float) -> np.ndarray:
-        """Generate synthetic depth map for demonstration"""
-        # Create radial gradient depth
-        y, x = np.ogrid[:h, :w]
-        cx, cy = w/2, h/2
-        dist = np.sqrt((x - cx)**2 + (y - cy)**2)
-        depth = 1.0 + (dist / np.max(dist)) * 5.0 * abs(scale.item() if hasattr(scale, 'item') else scale)
-        return depth.astype(np.float32)
-
-    def _depth_to_pointcloud(self, depth: np.ndarray) -> np.ndarray:
-        """Convert depth map to 3D point cloud"""
-        h, w = depth.shape
-
-        # Camera intrinsics (placeholder)
-        fx = fy = 500
-        cx, cy = w/2, h/2
-
-        # Generate mesh grid
-        xx, yy = np.meshgrid(np.arange(w), np.arange(h))
-
-        # Back-project to 3D
-        z = depth
-        x = (xx - cx) * z / fx
-        y = (yy - cy) * z / fy
-
-        # Stack into point cloud
-        points = np.stack([x, y, z], axis=-1).reshape(-1, 3)
-
-        # Subsample for efficiency
-        indices = np.random.choice(len(points), min(10000, len(points)), replace=False)
-        return points[indices]
 
 
 def test_vggt_mps():

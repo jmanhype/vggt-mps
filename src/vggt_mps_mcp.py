@@ -5,10 +5,10 @@ Provides tools for 3D reconstruction using VGGT model with MPS acceleration
 """
 
 from fastmcp import FastMCP
-from tools.readme import readme_mcp
-from tools.demo_gradio import demo_gradio_mcp
-from tools.demo_viser import demo_viser_mcp
-from tools.demo_colmap import demo_colmap_mcp
+from src.tools.readme import readme_mcp
+from src.tools.demo_gradio import demo_gradio_mcp
+from src.tools.demo_viser import demo_viser_mcp
+from src.tools.demo_colmap import demo_colmap_mcp
 
 # Create MCP server for VGGT-MPS
 mcp = FastMCP(name="vggt-mps")

@@ -65,8 +65,8 @@ cd vggt-mps
 python -m venv vggt-env
 source vggt-env/bin/activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install dependencies (legacy pip workflow)
+pip install -r legacy/requirements.txt
 ```
 
 ### 2. Download Model Weights
@@ -171,8 +171,9 @@ python main.py download
 ```
 vggt-mps/
 ├── main.py                      # Single entry point
-├── setup.py                     # Package installation
-├── requirements.txt             # Dependencies
+├── legacy/                      # Legacy packaging files
+│   ├── setup.py                 # Deprecated installer
+│   └── requirements.txt         # Deprecated dependency list
 ├── .env.example                 # Environment configuration
 │
 ├── src/                         # Source code

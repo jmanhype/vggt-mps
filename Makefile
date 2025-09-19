@@ -1,7 +1,7 @@
 # VGGT-MPS Makefile
 # Modern development workflow with uv
 
-.PHONY: help install dev test demo benchmark format lint clean model run web check all
+.PHONY: help install dev test demo benchmark format lint clean clean-runtime clean-models distclean model run web check all
 
 # Colors for output
 RED := \033[0;31m
@@ -13,6 +13,9 @@ NC := \033[0m # No Color
 # Python executable
 PYTHON := python
 UV := uv
+
+RUNTIME_DIRS := logs outputs tmp data
+MODEL_FILES := models repo/vggt/vggt_model.pt
 
 help: ## Show this help message
 	@echo "$(BLUE)VGGT-MPS Development Commands$(NC)"
@@ -89,7 +92,7 @@ type-check: ## Run type checking with mypy
 
 clean: ## Clean build artifacts
 	@echo "$(BLUE)Cleaning build artifacts...$(NC)"
-	rm -rf build/ dist/ *.egg-info .pytest_cache/
+	rm -rf build/ dist/ *.egg-info .pytest_cache/ .benchmarks/
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	find . -type f -name "*.pyc" -delete
 	find . -type f -name "*.pyo" -delete
@@ -97,6 +100,29 @@ clean: ## Clean build artifacts
 	find . -type f -name ".coverage" -delete
 	find . -type d -name "*.egg" -exec rm -rf {} + 2>/dev/null || true
 	@echo "$(GREEN)✓ Cleaned!$(NC)"
+
+clean-runtime: ## Remove runtime directories (logs/, outputs/, tmp/, data/)
+	@echo "$(BLUE)Cleaning runtime directories...$(NC)"
+	@for dir in $(RUNTIME_DIRS); do \
+		if [ -d "$$dir" ]; then \
+			echo "  • removing $$dir"; \
+			rm -rf "$$dir"; \
+		fi; \
+	done
+	@echo "$(GREEN)✓ Runtime directories removed!$(NC)"
+
+clean-models: ## Remove downloaded models and caches
+	@echo "$(BLUE)Removing downloaded models...$(NC)"
+	@for target in $(MODEL_FILES); do \
+		if [ -e "$$target" ]; then \
+			echo "  • deleting $$target"; \
+			rm -rf "$$target"; \
+		fi; \
+	done
+	@echo "$(GREEN)✓ Model artifacts removed!$(NC)"
+
+distclean: clean clean-runtime clean-models ## Remove all build artifacts, runtime data, and models
+	@echo "$(GREEN)✓ Workspace completely cleaned!$(NC)"
 
 model: ## Download VGGT model weights
 	@echo "$(BLUE)Downloading VGGT model (5GB)...$(NC)"

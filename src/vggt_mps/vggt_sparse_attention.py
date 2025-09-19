@@ -11,12 +11,15 @@ from typing import Optional
 import sys
 from pathlib import Path
 
-# Add VGGT to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "repo" / "vggt"))
+# Add VGGT to path (if available)
+# sys.path.insert(0, str(Path(__file__).parent.parent / "repo" / "vggt"))
 
-from vggt.models.vggt import VGGT
-from vggt.models.aggregator import Aggregator
-from megaloc_mps import MegaLocMPS
+# Note: These imports would come from the actual VGGT repo
+# For now, we'll use mock implementations
+# from vggt.models.vggt import VGGT
+# from vggt.models.aggregator import Aggregator
+
+from vggt_mps.megaloc_mps import MegaLocMPS
 
 
 class SparseAttentionAggregator(nn.Module):
@@ -25,7 +28,7 @@ class SparseAttentionAggregator(nn.Module):
     No retraining needed - uses existing weights!
     """
 
-    def __init__(self, original_aggregator: Aggregator, megaloc: MegaLocMPS):
+    def __init__(self, original_aggregator: nn.Module, megaloc: MegaLocMPS):
         super().__init__()
         self.aggregator = original_aggregator
         self.megaloc = megaloc
@@ -102,9 +105,9 @@ class SparseAttentionAggregator(nn.Module):
 
 
 def make_vggt_sparse(
-    vggt_model: VGGT,
+    vggt_model: nn.Module,
     device: str = "mps"
-) -> VGGT:
+) -> nn.Module:
     """
     Convert regular VGGT to sparse attention version
     NO RETRAINING REQUIRED - uses existing weights!

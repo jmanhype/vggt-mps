@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import WEB_CONFIG
 
 
-def launch_web(args):
+def launch_web_interface(args):
     """Launch Gradio web interface"""
     print("=" * 60)
     print("🌐 VGGT Web Interface")

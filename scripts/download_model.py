@@ -54,7 +54,7 @@ def main():
 if __name__ == "__main__":
     # Install tqdm if not available
     try:
-        import tqdm
+        from tqdm import tqdm
     except ImportError:
         print("Installing tqdm for progress bar...")
         os.system("pip install tqdm")

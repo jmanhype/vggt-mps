@@ -6,10 +6,17 @@ Download VGGT model weights from Hugging Face
 import os
 import requests
 from pathlib import Path
-from tqdm import tqdm
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    tqdm = None  # type: ignore
 
 def download_file(url, dest_path):
     """Download file with progress bar"""
+    if tqdm is None:
+        raise RuntimeError("tqdm is required; install it or run this script as __main__")
+
     response = requests.get(url, stream=True)
     total_size = int(response.headers.get('content-length', 0))
 
@@ -52,12 +59,9 @@ def main():
         print(f"And place it at: {model_path}")
 
 if __name__ == "__main__":
-    # Install tqdm if not available
-    try:
-        import tqdm
-    except ImportError:
+    if tqdm is None:
         print("Installing tqdm for progress bar...")
         os.system("pip install tqdm")
-        from tqdm import tqdm
+        from tqdm import tqdm  # type: ignore  # noqa: E402
 
     main()

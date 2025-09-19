@@ -65,8 +65,8 @@ cd vggt-mps
 python -m venv vggt-env
 source vggt-env/bin/activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install dependencies (legacy pip workflow)
+pip install -r legacy/requirements.txt
 ```
 
 ### 2. Download Model Weights
@@ -92,7 +92,18 @@ Expected output:
 ✅ MPS operations working correctly!
 ```
 
-### 4. Setup Environment (Optional)
+### 4. Built-in Sample Images
+
+We vendor four reference frames from the official VGGT "kitchen" scene in
+`examples/sample_data/kitchen`. Demos automatically fall back to these images
+when `data/` is empty.
+
+```bash
+# Optionally copy them into data/
+cp examples/sample_data/kitchen/*.png data/
+```
+
+### 5. Setup Environment (Optional)
 
 ```bash
 # Copy environment configuration
@@ -102,7 +113,7 @@ cp .env.example .env
 nano .env
 ```
 
-### 5. Usage
+### 6. Usage
 
 All functionality is accessible through the main entry point:
 
@@ -170,44 +181,19 @@ python main.py download
 
 ```
 vggt-mps/
-├── main.py                      # Single entry point
-├── setup.py                     # Package installation
-├── requirements.txt             # Dependencies
-├── .env.example                 # Environment configuration
-│
-├── src/                         # Source code
-│   ├── config.py               # Centralized configuration
-│   ├── vggt_core.py            # Core VGGT processing
-│   ├── vggt_sparse_attention.py # Sparse attention (O(n) scaling)
-│   ├── visualization.py        # 3D visualization utilities
-│   │
-│   ├── commands/               # CLI commands
-│   │   ├── demo.py            # Demo command
-│   │   ├── reconstruct.py     # Reconstruction command
-│   │   ├── test_runner.py     # Test runner
-│   │   ├── benchmark.py       # Performance benchmarking
-│   │   └── web_interface.py   # Gradio web app
-│   │
-│   └── utils/                  # Utilities
-│       ├── model_loader.py    # Model management
-│       ├── image_utils.py     # Image processing
-│       └── export.py          # Export to PLY/OBJ/GLB
-│
-├── tests/                       # Organized test suite
-│   ├── test_mps.py            # MPS functionality tests
-│   ├── test_sparse.py         # Sparse attention tests
-│   └── test_integration.py    # End-to-end tests
-│
-├── data/                        # Input data directory
-├── outputs/                     # Output directory
-├── models/                      # Model storage
-│
-├── docs/                        # Documentation
-│   ├── API.md                  # API documentation
-│   ├── SPARSE_ATTENTION.md    # Technical details
-│   └── BENCHMARKS.md          # Performance results
-│
-└── LICENSE                      # MIT License
+├── pyproject.toml              # Modern packaging configuration
+├── main.py                     # Legacy shim -> `vggt` CLI
+├── legacy/                     # Deprecated setup/requirements (read-only)
+├── examples/
+│   ├── sample_data/kitchen/   # Official VGGT kitchen frames
+│   ├── demo_vggt_mps.py       # Main demo
+│   └── ...
+├── src/vggt_mps/              # Library + CLI implementation
+├── tests/                     # Test suite
+├── models/                    # Downloaded checkpoints (empty by default)
+├── data/                      # User-supplied images (empty by default)
+├── docs/                      # Documentation
+└── scripts/download_model.py  # Model downloader
 ```
 
 ## 🖼️ Usage Examples

@@ -39,8 +39,8 @@ cd vggt-mps
 python -m venv vggt-env
 source vggt-env/bin/activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install dependencies (legacy pip workflow)
+pip install -r legacy/requirements.txt
 ```
 
 ### 2. Download Model Weights
@@ -66,7 +66,18 @@ Expected output:
 ✅ MPS operations working correctly!
 ```
 
-### 4. Run Demo
+### 4. Built-in Sample Images
+
+We bundle four VGGT "kitchen" frames from the upstream project in
+`examples/sample_data/kitchen`. Demos automatically fall back to these images
+when `data/` is empty.
+
+```bash
+# Optionally copy them into data/
+cp examples/sample_data/kitchen/*.png data/
+```
+
+### 5. Run Demo
 
 ```bash
 # Create test images
@@ -117,31 +128,20 @@ python examples/demo_vggt_mps.py
 
 ```
 vggt-mps/
-├── src/                         # Source code
-│   ├── vggt_mps_mcp.py         # MCP server
-│   └── tools/                   # VGGT tools (11 total)
-│       ├── readme.py           # Quick inference
-│       ├── demo_gradio.py      # Video & 3D tools
-│       ├── demo_viser.py       # Visualization
-│       └── demo_colmap.py      # COLMAP integration
-├── examples/                    # Example scripts
+├── pyproject.toml              # Packaging configuration
+├── main.py                     # Legacy shim -> `vggt` CLI
+├── legacy/                     # Deprecated setup/requirements (read-only)
+├── examples/
+│   ├── sample_data/kitchen/   # Official VGGT demo frames
 │   ├── demo_vggt_mps.py       # Main demo
-│   ├── create_test_images.py  # Generate test data
-│   └── vggt_mps_inference.py  # Direct inference
-├── tests/                       # Test scripts
-│   ├── test_vggt_mps.py       # MPS test
-│   └── test_hub_load.py       # Hub loading test
-├── scripts/                     # Utility scripts
-│   └── download_model.py      # Model downloader
-├── repo/vggt/                   # VGGT source
-│   ├── hubconf.py              # Torch hub config
-│   └── vggt_model.pt          # Model (5GB)
-├── tmp/                         # Working directory
-│   ├── inputs/                 # Input images
-│   └── outputs/                # Results
-├── requirements.txt             # Dependencies
-├── README.md                    # Documentation
-└── LICENSE                      # MIT License
+│   ├── demo_portable.py       # Portable Matplotlib demo
+│   └── ...
+├── src/vggt_mps/              # Library + CLI implementation
+├── tests/                     # Test suite
+├── models/                    # Downloaded checkpoints (empty by default)
+├── data/                      # User-supplied images (empty by default)
+├── docs/                      # Documentation
+└── scripts/download_model.py  # Model downloader
 ```
 
 ## 🖼️ Usage Examples

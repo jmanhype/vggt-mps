@@ -1,0 +1,3 @@
+"""
+VGGT-MPS test suite
+"""

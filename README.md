@@ -51,7 +51,7 @@ pip install -e .
 
 ```bash
 # Download the 5GB VGGT model
-python scripts/download_model.py
+python main.py download
 ```
 
 Or manually download from [Hugging Face](https://huggingface.co/facebook/VGGT-1B/resolve/main/model.pt)
@@ -59,7 +59,7 @@ Or manually download from [Hugging Face](https://huggingface.co/facebook/VGGT-1B
 ### 3. Test MPS Support
 
 ```bash
-python tests/test_vggt_mps.py
+python main.py test --suite mps
 ```
 
 Expected output:

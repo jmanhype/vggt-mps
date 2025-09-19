@@ -101,6 +101,9 @@ when `data/` is empty.
 ```bash
 # Optionally copy them into data/
 cp examples/sample_data/kitchen/*.png data/
+
+# Fetch additional scenes (requires GitHub CLI)
+python scripts/fetch_sample_data.py --scenes room llff_fern
 ```
 
 ### 5. Setup Environment (Optional)

@@ -13,3 +13,5 @@ python examples/demo_portable.py --images $default_images
 ```
 
 Please keep this directory in sync with upstream if additional scenes are needed.
+
+Run `python scripts/fetch_sample_data.py --help` for more datasets.

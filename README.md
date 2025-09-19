@@ -30,7 +30,32 @@ VGGT reconstructs 3D scenes from images by predicting:
 
 ## 🚀 Quick Start
 
-### 1. Clone and Setup
+### Installation Options
+
+#### Option A: Install from PyPI (Coming Soon)
+
+```bash
+# Install from PyPI (when published)
+pip install vggt-mps
+
+# Download model weights (5GB)
+vggt download
+```
+
+#### Option B: Install from Source with UV (Recommended for Development)
+
+```bash
+git clone https://github.com/jmanhype/vggt-mps.git
+cd vggt-mps
+
+# Install with uv (10-100x faster than pip!)
+make install
+
+# Or manually with uv
+uv pip install -e .
+```
+
+#### Option C: Traditional pip install from Source
 
 ```bash
 git clone https://github.com/jmanhype/vggt-mps.git
@@ -42,16 +67,13 @@ source vggt-env/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Or install as package
-pip install -e .
 ```
 
 ### 2. Download Model Weights
 
 ```bash
 # Download the 5GB VGGT model
-python scripts/download_model.py
+python main.py download
 ```
 
 Or manually download from [Hugging Face](https://huggingface.co/facebook/VGGT-1B/resolve/main/model.pt)
@@ -59,7 +81,7 @@ Or manually download from [Hugging Face](https://huggingface.co/facebook/VGGT-1B
 ### 3. Test MPS Support
 
 ```bash
-python tests/test_vggt_mps.py
+python main.py test --suite mps
 ```
 
 Expected output:

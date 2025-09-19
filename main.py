@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""
+VGGT-MPS: Main entry point for 3D reconstruction with sparse attention
+"""
+
+import argparse
+import sys
+from pathlib import Path
+
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent / "src"))
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="VGGT 3D Reconstruction on Apple Silicon",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Run demo with test images
+  python main.py demo
+
+  # Process specific images
+  python main.py reconstruct data/*.jpg
+
+  # Run with sparse attention
+  python main.py reconstruct --sparse data/*.jpg
+
+  # Launch web interface
+  python main.py web
+
+  # Run tests
+  python main.py test
+
+  # Benchmark performance
+  python main.py benchmark
+        """
+    )
+
+    # Subcommands
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Demo command
+    demo_parser = subparsers.add_parser("demo", help="Run demo with sample images")
+    demo_parser.add_argument("--images", type=int, default=2, help="Number of images to use (2-8)")
+    demo_parser.add_argument("--kitchen", action="store_true", help="Use kitchen dataset")
+
+    # Reconstruct command
+    recon_parser = subparsers.add_parser("reconstruct", help="3D reconstruction from images")
+    recon_parser.add_argument("images", nargs="+", help="Image files to process")
+    recon_parser.add_argument("--sparse", action="store_true", help="Use sparse attention")
+    recon_parser.add_argument("--output", type=str, default="outputs", help="Output directory")
+    recon_parser.add_argument("--export", choices=["ply", "obj", "glb"], help="Export format")
+
+    # Web interface command
+    web_parser = subparsers.add_parser("web", help="Launch web interface")
+    web_parser.add_argument("--port", type=int, default=7860, help="Port to run on")
+    web_parser.add_argument("--share", action="store_true", help="Create public link")
+
+    # Test command
+    test_parser = subparsers.add_parser("test", help="Run tests")
+    test_parser.add_argument("--suite", choices=["all", "mps", "sparse", "quick"],
+                            default="quick", help="Test suite to run")
+
+    # Benchmark command
+    bench_parser = subparsers.add_parser("benchmark", help="Benchmark performance")
+    bench_parser.add_argument("--images", type=int, default=10, help="Number of images")
+    bench_parser.add_argument("--compare", action="store_true", help="Compare sparse vs dense")
+
+    # Download model command
+    download_parser = subparsers.add_parser("download", help="Download VGGT model")
+    download_parser.add_argument("--source", choices=["huggingface", "direct"],
+                                default="huggingface", help="Download source")
+
+    args = parser.parse_args()
+
+    if not args.command:
+        parser.print_help()
+        return
+
+    # Import only what we need
+    if args.command == "demo":
+        from vggt_mps.commands.demo import run_demo
+        run_demo(args)
+
+    elif args.command == "reconstruct":
+        from vggt_mps.commands.reconstruct import run_reconstruction
+        run_reconstruction(args)
+
+    elif args.command == "web":
+        from vggt_mps.commands.web_interface import launch_web_interface
+        launch_web_interface(args)
+
+    elif args.command == "test":
+        from vggt_mps.commands.test_runner import run_tests
+        run_tests(args)
+
+    elif args.command == "benchmark":
+        from vggt_mps.commands.benchmark import run_benchmark
+        run_benchmark(args)
+
+    elif args.command == "download":
+        from vggt_mps.commands.download_model import download_model
+        download_model(args)
+
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,27 @@
+# VGGT MPS Requirements
+# Core dependencies
+torch>=2.0.0
+torchvision>=0.15.0
+numpy>=1.24.0
+pillow>=9.5.0
+matplotlib>=3.7.0
+scipy>=1.10.0
+tqdm>=4.65.0
+
+# VGGT specific
+einops>=0.6.1
+transformers>=4.30.0
+huggingface-hub>=0.16.0
+
+# MegaLoc/DINOv2 dependencies
+timm>=0.9.0
+opencv-python>=4.7.0
+
+# Optional for web interface
+gradio>=3.40.0
+plotly>=5.15.0
+
+# Development
+pytest>=7.3.0
+black>=23.0.0
+flake8>=6.0.0

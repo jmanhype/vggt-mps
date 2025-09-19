@@ -44,25 +44,76 @@ graph LR
     G[O(n²) Memory] -.-> H[O(n) Memory]
 ```
 
-## 📁 Final Repository Structure
+## 📁 Updated Repository Structure (v2.0.0)
 
 ```
 vggt-mps/
+├── main.py                         # 🎯 Single entry point CLI
+├── setup.py                        # 📦 Package configuration
+├── requirements.txt                # 📋 Dependencies
+│
 ├── src/
-│   ├── vggt_sparse_attention.py    # 🎯 Main sparse implementation
-│   ├── megaloc_mps.py              # 🔍 Covisibility detection
-│   ├── vggt_mps_mcp.py            # 🔌 MCP server
-│   └── tools/                      # 🛠️ Demo tools
-├── tests/
-│   ├── sparse_attention/           # 🧪 Sparse tests
-│   └── *.py                       # 📋 Basic tests
-├── examples/
-│   └── demo_vggt_mps.py           # 🎬 Real demo (no stubs!)
-├── docs/
-│   ├── SPARSE_ATTENTION_RESULTS.md # 📊 Full results
-│   └── *.md                       # 📚 Documentation
-└── scripts/
-    └── download_model.py          # ⬇️ Model setup
+│   ├── config.py                   # ⚙️ Centralized configuration
+│   ├── vggt_core.py               # 🔧 Core VGGT processor
+│   ├── vggt_sparse_attention.py   # 🎯 Sparse implementation
+│   ├── megaloc_mps.py             # 🔍 Covisibility detection
+│   ├── visualization.py           # 📊 3D visualization
+│   ├── vggt_mps_mcp.py           # 🔌 MCP server
+│   │
+│   ├── commands/                   # 🎮 CLI commands
+│   │   ├── demo.py                # Run demos
+│   │   ├── reconstruct.py         # 3D reconstruction
+│   │   ├── test_runner.py         # Test execution
+│   │   ├── benchmark.py           # Performance testing
+│   │   ├── web_interface.py       # Gradio UI
+│   │   └── download_model.py      # Model management
+│   │
+│   ├── utils/                      # 🛠️ Utilities
+│   │   ├── create_test_images.py  # Test data generation
+│   │   └── export.py              # Export utilities
+│   │
+│   └── tools/                      # 🔧 MCP tools
+│       ├── readme.py              # Quick inference
+│       ├── demo_gradio.py         # Web interface
+│       ├── demo_viser.py          # 3D visualization
+│       └── demo_colmap.py         # COLMAP integration
+│
+├── tests/                          # 🧪 Test suite
+│   ├── __init__.py
+│   ├── test_mps.py               # MPS tests
+│   ├── test_sparse.py            # Sparse attention tests
+│   └── sparse_attention/         # Advanced sparse tests
+│
+├── examples/                       # 📚 Examples (deprecated)
+│   ├── DEPRECATED_README.md      # Migration guide
+│   └── demo_*.py                 # Legacy demos
+│
+├── docs/                          # 📚 Documentation
+│   ├── IMPLEMENTATION_SUMMARY.md # This document
+│   ├── SPARSE_ATTENTION_RESULTS.md # Performance results
+│   └── README.md                 # Project documentation
+│
+└── repo/vggt/                     # 📦 VGGT model
+    ├── hubconf.py                # Torch hub config
+    └── vggt_model.pt            # Model weights (5GB)
+```
+
+## 🆕 v2.0.0 - Unified CLI Structure
+
+### Major Refactoring
+- **Single Entry Point**: All functionality through `main.py`
+- **Organized Commands**: Clean subcommand structure
+- **Centralized Config**: No more hardcoded paths
+- **Professional Structure**: Follows Python best practices
+
+### New CLI Commands
+```bash
+python main.py demo              # Run demo with sample images
+python main.py test --suite mps  # Run MPS tests
+python main.py benchmark         # Benchmark performance
+python main.py download          # Download VGGT model
+python main.py reconstruct       # Process images
+python main.py web              # Launch Gradio interface
 ```
 
 ## 🚀 Key Innovations
@@ -71,6 +122,7 @@ vggt-mps/
 2. **Real-time Covisibility**: 1000 images processed in <1 second
 3. **Apple Silicon Native**: Full MPS optimization
 4. **Production Ready**: Identical outputs, O(n) scaling proven
+5. **Professional CLI**: Clean, maintainable project structure
 
 ## 🎉 Impact & Applications
 

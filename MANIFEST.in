@@ -1,0 +1,69 @@
+# MANIFEST.in - Control what files are included in PyPI package
+
+# Include documentation and configuration files
+include README.md
+include LICENSE
+include CONTRIBUTING.md
+include DEVELOPMENT.md
+include pyproject.toml
+include Makefile
+include .python-version
+include requirements.txt
+include requirements-lock.txt
+
+# Include source code
+recursive-include src *.py
+recursive-include tests *.py
+
+# Include package data
+recursive-include src *.json *.yaml *.yml *.txt
+
+# Exclude large files and directories
+recursive-exclude models *
+recursive-exclude outputs *
+recursive-exclude data *
+recursive-exclude repo *
+recursive-exclude tmp *
+recursive-exclude .venv *
+recursive-exclude vggt-env *
+recursive-exclude Scanpy_Demo *
+recursive-exclude TISSUE_Agent *
+
+# Exclude build artifacts
+recursive-exclude build *
+recursive-exclude dist *
+recursive-exclude *.egg-info *
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude .coverage
+global-exclude .pytest_cache
+
+# Exclude git and development files
+exclude .gitignore
+exclude .git
+exclude .env
+exclude .env.example
+recursive-exclude .claude *
+
+# Exclude model weights (5GB files)
+global-exclude *.pt
+global-exclude *.pth
+global-exclude *.ckpt
+global-exclude *.safetensors
+global-exclude *.bin
+
+# Exclude video and large media files
+global-exclude *.mp4
+global-exclude *.avi
+global-exclude *.mov
+global-exclude *.mkv
+global-exclude *.webm
+
+# Exclude 3D files that might be large
+global-exclude *.ply
+global-exclude *.obj
+global-exclude *.glb
+global-exclude *.gltf

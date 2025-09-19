@@ -7,9 +7,6 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent / "src"))
-
 def main():
     parser = argparse.ArgumentParser(
         description="VGGT 3D Reconstruction on Apple Silicon",
@@ -79,27 +76,27 @@ Examples:
 
     # Import only what we need
     if args.command == "demo":
-        from vggt_mps.commands.demo import run_demo
+        from .commands.demo import run_demo
         run_demo(args)
 
     elif args.command == "reconstruct":
-        from vggt_mps.commands.reconstruct import run_reconstruction
+        from .commands.reconstruct import run_reconstruction
         run_reconstruction(args)
 
     elif args.command == "web":
-        from vggt_mps.commands.web_interface import launch_web_interface
+        from .commands.web_interface import launch_web_interface
         launch_web_interface(args)
 
     elif args.command == "test":
-        from vggt_mps.commands.test_runner import run_tests
+        from .commands.test_runner import run_tests
         run_tests(args)
 
     elif args.command == "benchmark":
-        from vggt_mps.commands.benchmark import run_benchmark
+        from .commands.benchmark import run_benchmark
         run_benchmark(args)
 
     elif args.command == "download":
-        from vggt_mps.commands.download_model import download_model
+        from .commands.download_model import download_model
         download_model(args)
 
     else:

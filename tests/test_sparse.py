@@ -11,12 +11,12 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from config import DEVICE, SPARSE_CONFIG
-from vggt_sparse_attention import (
+from vggt_mps.config import DEVICE, SPARSE_CONFIG
+from vggt_mps.vggt_sparse_attention import (
     SparseAttentionAggregator,
     make_vggt_sparse
 )
-from megaloc_mps import MegaLocMPS
+from vggt_mps.megaloc_mps import MegaLocMPS
 
 
 class TestSparseAttention(unittest.TestCase):

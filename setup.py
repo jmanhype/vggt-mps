@@ -18,7 +18,8 @@ setup(
     long_description=long_description,
     long_description_content_type="markdown",
     url="https://github.com/yourusername/vggt-mps",
-    packages=find_packages(include=['src', 'src.*']),
+    package_dir={'': 'src'},
+    packages=find_packages(where='src'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
@@ -58,8 +59,8 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "vggt=main:main",
-            "vggt-mps=main:main",
+            "vggt=vggt_mps.__main__:main",
+            "vggt-mps=vggt_mps.__main__:main",
         ],
     },
     include_package_data=True,

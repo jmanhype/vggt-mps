@@ -79,11 +79,12 @@ Issues = "https://github.com/jmanhype/vggt-mps/issues"
 "Release Notes" = "https://github.com/jmanhype/vggt-mps/releases"
 
 [project.scripts]
-vggt = "main:main"
-vggt-mps = "main:main"
+vggt = "vggt_mps.__main__:main"
+vggt-mps = "vggt_mps.__main__:main"
 
 [tool.setuptools]
-packages = ["src", "tests"]
+packages.find = {where = ["src"]}
+package-dir = {"" = "src"}
 include-package-data = true
 
 [tool.setuptools.package-data]

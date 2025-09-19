@@ -68,7 +68,7 @@ except ImportError:
         print("✅ Using system VGGT")
     except ImportError:
         print("❌ VGGT not found. Please install it first:")
-        print("   pip install -r requirements.txt")
+        print("   pip install -r legacy/requirements.txt")
         print("   or follow installation instructions in README")
         sys.exit(1)
 

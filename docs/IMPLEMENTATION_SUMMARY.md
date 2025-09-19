@@ -49,8 +49,9 @@ graph LR
 ```
 vggt-mps/
 ├── main.py                         # 🎯 Single entry point CLI
-├── setup.py                        # 📦 Package configuration
-├── requirements.txt                # 📋 Dependencies
+├── legacy/                         # 🗂️ Deprecated packaging files
+│   ├── setup.py                    # Legacy installer
+│   └── requirements.txt           # Legacy dependency list
 │
 ├── src/
 │   ├── config.py                   # ⚙️ Centralized configuration

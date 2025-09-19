@@ -39,8 +39,8 @@ cd vggt-mps
 python -m venv vggt-env
 source vggt-env/bin/activate
 
-# Install dependencies
-pip install -r requirements.txt
+# Install dependencies (legacy pip workflow)
+pip install -r legacy/requirements.txt
 ```
 
 ### 2. Download Model Weights
@@ -133,13 +133,15 @@ vggt-mps/
 │   └── test_hub_load.py       # Hub loading test
 ├── scripts/                     # Utility scripts
 │   └── download_model.py      # Model downloader
-├── repo/vggt/                   # VGGT source
-│   ├── hubconf.py              # Torch hub config
-│   └── vggt_model.pt          # Model (5GB)
+├── models/                      # Downloaded VGGT checkpoints
+├── repo/vggt/                   # VGGT source (read-only)
+│   └── hubconf.py              # Torch hub config
 ├── tmp/                         # Working directory
 │   ├── inputs/                 # Input images
 │   └── outputs/                # Results
-├── requirements.txt             # Dependencies
+├── legacy/                      # Legacy packaging files
+│   ├── setup.py                # Deprecated installer
+│   └── requirements.txt        # Deprecated dependencies
 ├── README.md                    # Documentation
 └── LICENSE                      # MIT License
 ```

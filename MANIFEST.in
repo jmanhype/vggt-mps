@@ -8,7 +8,6 @@ include DEVELOPMENT.md
 include pyproject.toml
 include Makefile
 include .python-version
-include requirements.txt
 include requirements-lock.txt
 
 # Include source code

@@ -229,7 +229,11 @@ ls -lh repo/vggt/vggt_model.pt
 
 ## 🤝 Contributing
 
-Contributions welcome! Please open issues for bugs or feature requests.
+- `develop` is the integration branch; `main` stays stable for tagged releases.
+- Branch from `develop`, keep changes focused, and open PRs back into it.
+- Update docs/tests alongside code and open an issue before large efforts.
+
+See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for the full workflow, semantic-versioning policy, and release checklist.
 
 ## 📄 License
 

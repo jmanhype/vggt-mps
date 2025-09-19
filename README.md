@@ -307,7 +307,7 @@ python -c "import torch; print(torch.backends.mps.is_available())"
 
 ```bash
 # Verify model file
-ls -lh repo/vggt/vggt_model.pt
+ls -lh models/vggt_model.pt
 # Should show ~5GB file
 ```
 

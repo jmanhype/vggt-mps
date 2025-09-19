@@ -8,6 +8,10 @@ import numpy as np
 from pathlib import Path
 import sys
 
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+
+from vggt_mps.config import get_model_path
+
 print("=" * 50)
 print("VGGT on Apple Silicon (MPS) Test")
 print("=" * 50)
@@ -27,7 +31,7 @@ print("-" * 50)
 # Try to load the model
 try:
     print("Loading VGGT model weights...")
-    model_path = Path("repo/vggt/vggt_model.pt")
+    model_path = get_model_path()
 
     if model_path.exists():
         print(f"✅ Model file found: {model_path}")

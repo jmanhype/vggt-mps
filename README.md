@@ -263,7 +263,18 @@ ls -lh repo/vggt/vggt_model.pt
 
 ## 🤝 Contributing
 
-Contributions welcome! Please open issues for bugs or feature requests.
+We follow a lightweight Git Flow:
+
+- `main` holds the latest stable release and is protected.
+- `develop` is the default integration branch for day-to-day work.
+
+When contributing:
+
+1. Create your feature branch from `develop` (`git switch develop && git switch -c feature/my-change`).
+2. Keep commits focused and include tests or documentation updates when relevant.
+3. Open your pull request against `develop`; maintainers will promote changes to `main` during releases.
+
+Please open issues for bugs or feature requests before starting large efforts.
 
 ## 📄 License
 

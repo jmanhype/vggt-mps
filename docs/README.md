@@ -7,6 +7,7 @@ Transform single or multi-view images into rich 3D reconstructions using Faceboo
 ## ✨ Features
 
 - **🚀 MPS Acceleration**: Full GPU acceleration on Apple Silicon using Metal Performance Shaders
+- **⚡ Sparse Attention**: O(n) memory scaling for city-scale reconstruction (100x savings!)
 - **🎥 Multi-View 3D Reconstruction**: Generate depth maps, point clouds, and camera poses from images
 - **🔧 MCP Integration**: Model Context Protocol server for Claude Desktop integration
 - **📦 5GB Model**: Efficient 1B parameter model that runs smoothly on Apple Silicon
@@ -74,6 +75,9 @@ python examples/create_test_images.py
 
 # Run 3D reconstruction demo
 python examples/demo_vggt_mps.py
+
+# Test sparse attention (O(n) scaling)
+python tests/sparse_attention/test_sparse_vggt_final.py
 ```
 
 ## 🔧 MCP Server Integration
@@ -229,7 +233,7 @@ ls -lh repo/vggt/vggt_model.pt
 
 ## 🤝 Contributing
 
-Contributions welcome! Please open issues for bugs or feature requests.
+We now use a `develop` integration branch. Branch from `develop`, keep changes focused, and open pull requests back into it. Maintainers periodically sync `develop` to `main` during releases. Please open an issue first for larger changes or new features.
 
 ## 📄 License
 

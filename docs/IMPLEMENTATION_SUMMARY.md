@@ -34,14 +34,30 @@ Images    | Regular  | Sparse   | Savings
 ## 🏗️ Architecture Overview
 
 ```mermaid
-graph LR
-    A[Input Images] --> B[MegaLoc Features]
-    B --> C[Covisibility Matrix]
-    C --> D[Attention Mask]
-    D --> E[Sparse VGGT]
-    E --> F[Same Output]
+graph TB
+    subgraph "Input Processing"
+        A["Input Images<br/>B x S x C x H x W"] --> B["DINOv2 Features<br/>S x 16640"]
+        B --> C["SALAD Aggregation<br/>Global Descriptors"]
+    end
 
-    G[O(n²) Memory] -.-> H[O(n) Memory]
+    subgraph "Covisibility Detection"
+        C --> D["Pairwise Similarities<br/>S x S Matrix"]
+        D --> E["Threshold & k-NN<br/>Binary Mask S x S"]
+        E --> F["Graph Connectivity<br/>Ensure Connected"]
+    end
+
+    subgraph "VGGT Processing"
+        F --> G["Attention Masking<br/>Runtime Patching"]
+        A --> H["Original VGGT<br/>Aggregator"]
+        G --> I["Sparse Attention<br/>O n*k vs O n^2"]
+        H --> I
+        I --> J["Same Output<br/>Depth + Poses"]
+    end
+
+    subgraph "Memory Comparison"
+        K["Regular: n^2"] -.-> L["Sparse: n*k"]
+        L -.-> M["100x Savings<br/>for n=1000, k=10"]
+    end
 ```
 
 ## 📁 Final Repository Structure

@@ -182,19 +182,50 @@ python main.py download
 ```
 vggt-mps/
 ├── pyproject.toml              # Modern packaging configuration
-├── main.py                     # Legacy shim -> `vggt` CLI
-├── legacy/                     # Deprecated setup/requirements (read-only)
-├── examples/
+├── main.py                      # Legacy shim -> `vggt` CLI
+├── legacy/                      # Archived setup/requirements files
+├── .env.example                 # Environment configuration
+│
+├── src/                         # Source code
+│   ├── config.py               # Centralized configuration
+│   ├── vggt_core.py            # Core VGGT processing
+│   ├── vggt_sparse_attention.py # Sparse attention (O(n) scaling)
+│   ├── visualization.py        # 3D visualization utilities
+│   │
+│   ├── commands/               # CLI commands
+│   │   ├── demo.py            # Demo command
+│   │   ├── reconstruct.py     # Reconstruction command
+│   │   ├── test_runner.py     # Test runner
+│   │   ├── benchmark.py       # Performance benchmarking
+│   │   └── web_interface.py   # Gradio web app
+│   │
+│   └── utils/                  # Utilities
+│       ├── model_loader.py    # Model management
+│       ├── image_utils.py     # Image processing
+│       └── export.py          # Export to PLY/OBJ/GLB
+│
+├── tests/                       # Organized test suite
+│   ├── test_mps.py            # MPS functionality tests
+│   ├── test_sparse.py         # Sparse attention tests
+│   └── test_integration.py    # End-to-end tests
+│
+├── examples/                    # Example scripts & sample data
 │   ├── sample_data/kitchen/   # Official VGGT kitchen frames
 │   ├── demo_vggt_mps.py       # Main demo
-│   └── ...
-├── src/vggt_mps/              # Library + CLI implementation
-├── tests/                     # Test suite
-├── models/                    # Downloaded checkpoints (empty by default)
-├── data/                      # User-supplied images (empty by default)
-├── docs/                      # Documentation
-└── scripts/download_model.py  # Model downloader
+│   ├── demo_portable.py       # Matplotlib demo
+│   └── vggt_mps_inference.py  # Direct inference
+├── scripts/                     # Utility scripts
+│   └── download_model.py      # Model downloader
+├── data/                        # Input data directory
+├── outputs/                     # Output directory
+├── models/                      # Downloaded checkpoints
+├── docs/                        # Documentation
+└── LICENSE                      # MIT License
 ```
+
+
+
+
 
 ## 🖼️ Usage Examples
 
@@ -293,7 +324,7 @@ python -c "import torch; print(torch.backends.mps.is_available())"
 
 ```bash
 # Verify model file
-ls -lh repo/vggt/vggt_model.pt
+ls -lh models/vggt_model.pt
 # Should show ~5GB file
 ```
 

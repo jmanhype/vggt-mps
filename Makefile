@@ -15,7 +15,7 @@ PYTHON := python
 UV := uv
 
 RUNTIME_DIRS := logs outputs tmp data
-MODEL_FILES := models repo/vggt/vggt_model.pt
+MODEL_FILES := models/vggt_model.pt repo/vggt/vggt_model.pt
 
 help: ## Show this help message
 	@echo "$(BLUE)VGGT-MPS Development Commands$(NC)"

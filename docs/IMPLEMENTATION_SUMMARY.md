@@ -67,6 +67,9 @@ vggt-mps/
 └── scripts/download_model.py    # Model downloader
 ```
 
+
+
+
 ## 🆕 v2.0.0 - Unified CLI Structure
 
 ### Major Refactoring

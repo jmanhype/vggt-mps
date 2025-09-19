@@ -10,7 +10,7 @@ import os
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import MODEL_CONFIG, MODEL_DIR, get_model_path
+from vggt_mps.config import MODEL_CONFIG, MODEL_DIR, get_model_path
 
 
 def download_model(args):

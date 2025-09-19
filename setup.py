@@ -12,7 +12,7 @@ long_description = readme_path.read_text() if readme_path.exists() else ""
 
 setup(
     name="vggt-mps",
-    version="0.1.0",
+    version="2.0.0",
     author="VGGT MPS Contributors",
     description="VGGT 3D reconstruction optimized for Apple Silicon with sparse attention",
     long_description=long_description,

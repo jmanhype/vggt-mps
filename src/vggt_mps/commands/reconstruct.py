@@ -12,14 +12,14 @@ import argparse
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import (
+from vggt_mps.config import (
     DEVICE, OUTPUT_DIR, CAMERA_CONFIG, PROCESSING_CONFIG,
     SPARSE_CONFIG, EXPORT_FORMATS, get_model_path, is_model_available
 )
-from vggt_core import VGGTProcessor
-from vggt_sparse_attention import make_vggt_sparse
-from visualization import create_visualizations
-from utils.export import export_point_cloud
+from vggt_mps.vggt_core import VGGTProcessor
+from vggt_mps.vggt_sparse_attention import make_vggt_sparse
+from vggt_mps.visualization import create_visualizations
+from vggt_mps.utils.export import export_point_cloud
 
 
 def run_reconstruction(args):

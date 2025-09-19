@@ -12,9 +12,9 @@ from PIL import Image
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import DEVICE, SPARSE_CONFIG, get_model_path, is_model_available
-from vggt_core import VGGTProcessor
-from vggt_sparse_attention import make_vggt_sparse
+from vggt_mps.config import DEVICE, SPARSE_CONFIG, get_model_path, is_model_available
+from vggt_mps.vggt_core import VGGTProcessor
+from vggt_mps.vggt_sparse_attention import make_vggt_sparse
 
 
 def run_benchmark(args):

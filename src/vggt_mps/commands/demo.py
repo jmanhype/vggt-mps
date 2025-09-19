@@ -12,12 +12,12 @@ import matplotlib.pyplot as plt
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import (
+from vggt_mps.config import (
     DEVICE, DATA_DIR, OUTPUT_DIR, TEST_DATA,
     CAMERA_CONFIG, PROCESSING_CONFIG, get_model_path, is_model_available
 )
-from vggt_core import VGGTProcessor
-from visualization import create_visualizations
+from vggt_mps.vggt_core import VGGTProcessor
+from vggt_mps.visualization import create_visualizations
 
 
 def run_demo(args):

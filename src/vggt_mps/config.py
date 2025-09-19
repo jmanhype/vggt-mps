@@ -4,6 +4,7 @@ Centralized configuration management
 """
 
 import os
+import shutil
 from pathlib import Path
 from typing import Optional
 import torch
@@ -20,6 +21,22 @@ REPO_DIR = PROJECT_ROOT / "repo"
 for dir_path in [DATA_DIR, OUTPUT_DIR, MODEL_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
 
+
+def _migrate_legacy_model() -> None:
+    """Move legacy model file into the canonical models/ directory."""
+    target_path = MODEL_CONFIG["local_path"]
+    if target_path.exists() or not LEGACY_MODEL_PATH.exists():
+        return
+
+    try:
+        LEGACY_MODEL_PATH.replace(target_path)
+    except OSError:
+        shutil.copy2(LEGACY_MODEL_PATH, target_path)
+        LEGACY_MODEL_PATH.unlink(missing_ok=True)
+
+
+_migrate_legacy_model()
+
 # Model configuration
 MODEL_CONFIG = {
     "name": "VGGT-1B",
@@ -28,6 +45,7 @@ MODEL_CONFIG = {
     "model_size": "5GB",
     "parameters": "1B",
 }
+LEGACY_MODEL_PATH = REPO_DIR / "vggt" / "vggt_model.pt"
 
 # Device configuration
 def get_device():
@@ -113,16 +131,17 @@ load_from_env()
 # Utility functions
 def get_model_path() -> Path:
     """Get model path, checking multiple locations"""
-    # Check local path first
-    if MODEL_CONFIG["local_path"].exists():
-        return MODEL_CONFIG["local_path"]
+    target_path = MODEL_CONFIG["local_path"]
+    if target_path.exists():
+        return target_path
 
-    # Check repo directory
-    repo_model = REPO_DIR / "vggt" / "vggt_model.pt"
-    if repo_model.exists():
-        return repo_model
+    if LEGACY_MODEL_PATH.exists():
+        _migrate_legacy_model()
+        if target_path.exists():
+            return target_path
+        return LEGACY_MODEL_PATH
 
-    return MODEL_CONFIG["local_path"]  # Return expected path even if not exists
+    return target_path  # Return expected path even if not exists
 
 def is_model_available() -> bool:
     """Check if model is available locally"""

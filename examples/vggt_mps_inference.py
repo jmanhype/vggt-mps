@@ -3,31 +3,40 @@
 VGGT inference on Apple Silicon with MPS
 """
 
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import numpy as np
 import torch
 import torch.nn as nn
-from pathlib import Path
-import numpy as np
 from PIL import Image
-from typing import List, Dict, Any
+
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
+
+from vggt_mps.config import get_model_path
 
 class VGGTModelMPS:
     """VGGT wrapper for Apple Silicon MPS inference"""
 
-    def __init__(self, model_path: str = "repo/vggt/vggt_model.pt"):
+    def __init__(self, model_path: Optional[str] = None):
         self.device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
         print(f"Using device: {self.device}")
 
         # Import real VGGT
-        import sys
-        sys.path.insert(0, str(Path(__file__).parent.parent / "repo" / "vggt"))
+        sys.path.insert(0, str(PROJECT_ROOT / "repo" / "vggt"))
         from vggt.models.vggt import VGGT
 
         # Load the real VGGT model
-        model_path = Path(__file__).parent.parent / model_path
-        if model_path.exists():
-            print(f"📂 Loading VGGT from: {model_path}")
+        resolved_path = Path(model_path) if model_path else get_model_path()
+        if not resolved_path.is_absolute():
+            resolved_path = PROJECT_ROOT / resolved_path
+
+        if resolved_path.exists():
+            print(f"📂 Loading VGGT from: {resolved_path}")
             self.model = VGGT()
-            checkpoint = torch.load(model_path, map_location=self.device)
+            checkpoint = torch.load(resolved_path, map_location=self.device)
             self.model.load_state_dict(checkpoint)
             self.model = self.model.to(self.device)
         else:

@@ -76,6 +76,7 @@ Homepage = "https://github.com/jmanhype/vggt-mps"
 Documentation = "https://github.com/jmanhype/vggt-mps#readme"
 Repository = "https://github.com/jmanhype/vggt-mps.git"
 Issues = "https://github.com/jmanhype/vggt-mps/issues"
+"Release Notes" = "https://github.com/jmanhype/vggt-mps/releases"
 
 [project.scripts]
 vggt = "main:main"

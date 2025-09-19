@@ -146,6 +146,57 @@ ci: ## Run CI pipeline
 	make check
 	@echo "$(GREEN)✓ CI pipeline complete!$(NC)"
 
+# PyPI Publishing Commands
+build: clean ## Build distribution packages
+	@echo "$(BLUE)Building distribution packages...$(NC)"
+	$(PYTHON) -m pip install --upgrade build
+	$(PYTHON) -m build
+	@echo "$(GREEN)✓ Build complete! Check dist/ directory$(NC)"
+
+test-upload: build ## Upload to TestPyPI
+	@echo "$(BLUE)Uploading to TestPyPI...$(NC)"
+	$(PYTHON) -m pip install --upgrade twine
+	$(PYTHON) -m twine upload --repository testpypi dist/*
+	@echo "$(GREEN)✓ Uploaded to TestPyPI!$(NC)"
+	@echo "$(YELLOW)Test install with: pip install -i https://test.pypi.org/simple/ vggt-mps$(NC)"
+
+upload: build ## Upload to PyPI (production)
+	@echo "$(RED)⚠️  Production PyPI Upload$(NC)"
+	@echo "$(YELLOW)Are you sure? This will upload to production PyPI. Press Ctrl-C to cancel.$(NC)"
+	@read -p "Press Enter to continue..." dummy
+	$(PYTHON) -m pip install --upgrade twine
+	$(PYTHON) -m twine upload dist/*
+	@echo "$(GREEN)✓ Uploaded to PyPI!$(NC)"
+	@echo "$(YELLOW)Install with: pip install vggt-mps$(NC)"
+
+check-dist: build ## Check distribution package
+	@echo "$(BLUE)Checking distribution...$(NC)"
+	$(PYTHON) -m twine check dist/*
+	@echo "$(GREEN)✓ Distribution check passed!$(NC)"
+
+release: ## Create a new release (requires VERSION parameter)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "$(RED)ERROR: Please specify VERSION=x.y.z$(NC)"; \
+		echo "$(YELLOW)Usage: make release VERSION=2.0.1$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)Creating release $(VERSION)...$(NC)"
+	@echo "$(YELLOW)This will:$(NC)"
+	@echo "  1. Update version in pyproject.toml"
+	@echo "  2. Create git tag"
+	@echo "  3. Build and upload to PyPI"
+	@read -p "Continue? (y/n) " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		sed -i.bak 's/version = "[0-9]*\.[0-9]*\.[0-9]*"/version = "$(VERSION)"/' pyproject.toml && rm pyproject.toml.bak; \
+		git add pyproject.toml; \
+		git commit -m "chore: bump version to $(VERSION)"; \
+		git tag -a v$(VERSION) -m "Release version $(VERSION)"; \
+		make upload; \
+		echo "$(GREEN)✓ Release $(VERSION) complete!$(NC)"; \
+		echo "$(YELLOW)Don't forget to: git push origin main --tags$(NC)"; \
+	fi
+
 # Docker commands (future)
 docker-build: ## Build Docker image
 	@echo "$(YELLOW)Docker support coming soon...$(NC)"

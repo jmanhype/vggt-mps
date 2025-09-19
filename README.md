@@ -1,17 +1,34 @@
 # VGGT-MPS: 3D Vision Agent for Apple Silicon
 
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](https://github.com/jmanhype/vggt-mps/releases/tag/v2.0.0)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![MPS](https://img.shields.io/badge/Apple%20Silicon-M1%2FM2%2FM3-black)](https://developer.apple.com/metal/)
+
 🍎 **VGGT (Visual Geometry Grounded Transformer) optimized for Apple Silicon with Metal Performance Shaders (MPS)**
 
 Transform single or multi-view images into rich 3D reconstructions using Facebook Research's VGGT model, now accelerated on M1/M2/M3 Macs.
 
-## ✨ Features
+## 🎉 Release v2.0.0
 
-- **🚀 MPS Acceleration**: Full GPU acceleration on Apple Silicon using Metal Performance Shaders
+**Major Update**: Complete packaging overhaul with unified CLI, PyPI-ready distribution, and production-grade tooling!
+
+## ✨ What's New in v2.0.0
+
+### 🎯 Major Changes
+- **Unified CLI**: New `vggt` command with subcommands for all operations
+- **Professional Packaging**: PyPI-ready with `pyproject.toml`, proper src layout
+- **Web Interface**: Gradio UI for interactive 3D reconstruction (`vggt web`)
+- **Enhanced Testing**: Comprehensive test suite with MPS and sparse attention tests
+- **Modern Tooling**: UV support, Makefile automation, GitHub Actions CI/CD
+
+### 🚀 Core Features
+- **MPS Acceleration**: Full GPU acceleration on Apple Silicon using Metal Performance Shaders
 - **⚡ Sparse Attention**: O(n) memory scaling for city-scale reconstruction (100x savings!)
 - **🎥 Multi-View 3D Reconstruction**: Generate depth maps, point clouds, and camera poses from images
 - **🔧 MCP Integration**: Model Context Protocol server for Claude Desktop integration
 - **📦 5GB Model**: Efficient 1B parameter model that runs smoothly on Apple Silicon
-- **🛠️ Multiple Tools**: Video processing, 3D scene generation, COLMAP integration
+- **🛠️ Multiple Export Formats**: PLY, OBJ, GLB for 3D point clouds
 
 ## 🎯 What VGGT Does
 
@@ -73,6 +90,9 @@ pip install -r requirements.txt
 
 ```bash
 # Download the 5GB VGGT model
+vggt download
+
+# Or if running from source:
 python main.py download
 ```
 
@@ -81,6 +101,10 @@ Or manually download from [Hugging Face](https://huggingface.co/facebook/VGGT-1B
 ### 3. Test MPS Support
 
 ```bash
+# Test MPS acceleration
+vggt test --suite mps
+
+# Or from source:
 python main.py test --suite mps
 ```
 
@@ -102,31 +126,57 @@ cp .env.example .env
 nano .env
 ```
 
-### 5. Usage
+## 📖 Usage
 
-All functionality is accessible through the main entry point:
+### CLI Commands (v2.0.0)
+
+All functionality is accessible through the unified `vggt` command:
 
 ```bash
-# Run demo with sample images
-python main.py demo
+# Quick demo with sample images
+vggt demo
 
-# Run demo with kitchen dataset
-python main.py demo --kitchen --images 4
+# Demo with kitchen dataset (4 images)
+vggt demo --kitchen --images 4
 
 # Process your own images
-python main.py reconstruct data/*.jpg
+vggt reconstruct data/*.jpg
 
-# Launch web interface
-python main.py web
+# Use sparse attention for large scenes
+vggt reconstruct --sparse data/*.jpg
 
-# Run tests
-python main.py test --suite all
+# Export to specific format
+vggt reconstruct --export ply data/*.jpg
+
+# Launch interactive web interface
+vggt web
+
+# Open on specific port with public link
+vggt web --port 8080 --share
+
+# Run comprehensive tests
+vggt test --suite all
+
+# Test sparse attention specifically
+vggt test --suite sparse
 
 # Benchmark performance
-python main.py benchmark --compare
+vggt benchmark --compare
 
-# Download model if needed
-python main.py download
+# Download model weights
+vggt download
+```
+
+### From Source (Development)
+
+If running from source without installation:
+
+```bash
+python main.py demo
+python main.py reconstruct data/*.jpg
+python main.py web
+python main.py test --suite mps
+python main.py benchmark --compare
 ```
 
 ## 🔧 MCP Server Integration
@@ -322,6 +372,26 @@ ls -lh repo/vggt/vggt_model.pt
 - [VGGT Paper](https://arxiv.org/pdf/2507.04009)
 - [Facebook Research VGGT](https://github.com/facebookresearch/vggt)
 - [Hugging Face Model](https://huggingface.co/facebook/VGGT-1B)
+
+## 📚 Documentation
+
+- **[Development Guide](DEVELOPMENT.md)** - Setting up your dev environment
+- **[Publishing Guide](PUBLISHING.md)** - PyPI release process
+- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
+- **[API Documentation](docs/)** - Detailed API reference
+- **[Examples](examples/)** - Code examples and demos
+
+## 🚀 Release Notes
+
+### v2.0.0 (Latest)
+- ✨ Unified CLI with `vggt` command
+- 📦 Professional Python packaging (PyPI-ready)
+- 🌐 Gradio web interface
+- 🧪 Comprehensive test suite
+- 🛠️ Modern tooling (UV, Makefile, GitHub Actions)
+- 📝 Complete documentation overhaul
+
+See [full changelog](https://github.com/jmanhype/vggt-mps/releases/tag/v2.0.0)
 
 ## 🤝 Contributing
 

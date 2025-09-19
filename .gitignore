@@ -20,6 +20,9 @@ repo/vggt/vggt_model.pt
 
 # Data
 tmp/
+data/
+models/
+.benchmarks/
 *.jpg
 *.png
 *.mp4

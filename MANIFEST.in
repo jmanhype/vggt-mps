@@ -13,6 +13,7 @@ include requirements-lock.txt
 # Include source code
 recursive-include src *.py
 recursive-include tests *.py
+recursive-include examples/sample_data *.png *.jpg README.md
 
 # Include package data
 recursive-include src *.json *.yaml *.yml *.txt

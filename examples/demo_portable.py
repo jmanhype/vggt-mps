@@ -37,6 +37,7 @@ print("-" * 60)
 # Use relative paths
 PROJECT_ROOT = Path(__file__).parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
+SAMPLE_DATA_DIR = PROJECT_ROOT / "examples" / "sample_data" / "kitchen"
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
 MODEL_DIR = PROJECT_ROOT / "models"
 
@@ -48,9 +49,15 @@ MODEL_DIR.mkdir(parents=True, exist_ok=True)
 # Check for test images
 input_images = list(DATA_DIR.glob("*.jpg")) + list(DATA_DIR.glob("*.png"))
 if not input_images:
-    print("⚠️ No images found in data/ directory")
-    print("Please add images to:", DATA_DIR)
-    sys.exit(1)
+    sample_images = sorted(SAMPLE_DATA_DIR.glob("*.png"))
+    if sample_images:
+        print("⚠️ No images found in data/ directory")
+        print("   Falling back to examples/sample_data/kitchen")
+        input_images = sample_images[:4]
+    else:
+        print("⚠️ No images found in data/ or examples/sample_data/kitchen")
+        print("Please add images to:", DATA_DIR)
+        sys.exit(1)
 
 # Limit to 4 images for demo
 input_images = sorted(input_images)[:4]

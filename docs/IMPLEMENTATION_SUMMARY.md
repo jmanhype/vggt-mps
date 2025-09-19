@@ -44,60 +44,31 @@ graph LR
     G[O(n²) Memory] -.-> H[O(n) Memory]
 ```
 
-## 📁 Updated Repository Structure (v2.0.0)
+## 📁 Repository Structure (v2.0.1)
 
 ```
 vggt-mps/
-├── main.py                         # 🎯 Single entry point CLI
-├── legacy/                         # 🗂️ Deprecated packaging files
-│   ├── setup.py                    # Legacy installer
-│   └── requirements.txt           # Legacy dependency list
-│
-├── src/
-│   ├── config.py                   # ⚙️ Centralized configuration
-│   ├── vggt_core.py               # 🔧 Core VGGT processor
-│   ├── vggt_sparse_attention.py   # 🎯 Sparse implementation
-│   ├── megaloc_mps.py             # 🔍 Covisibility detection
-│   ├── visualization.py           # 📊 3D visualization
-│   ├── vggt_mps_mcp.py           # 🔌 MCP server
-│   │
-│   ├── commands/                   # 🎮 CLI commands
-│   │   ├── demo.py                # Run demos
-│   │   ├── reconstruct.py         # 3D reconstruction
-│   │   ├── test_runner.py         # Test execution
-│   │   ├── benchmark.py           # Performance testing
-│   │   ├── web_interface.py       # Gradio UI
-│   │   └── download_model.py      # Model management
-│   │
-│   ├── utils/                      # 🛠️ Utilities
-│   │   ├── create_test_images.py  # Test data generation
-│   │   └── export.py              # Export utilities
-│   │
-│   └── tools/                      # 🔧 MCP tools
-│       ├── readme.py              # Quick inference
-│       ├── demo_gradio.py         # Web interface
-│       ├── demo_viser.py          # 3D visualization
-│       └── demo_colmap.py         # COLMAP integration
-│
-├── tests/                          # 🧪 Test suite
-│   ├── __init__.py
-│   ├── test_mps.py               # MPS tests
-│   ├── test_sparse.py            # Sparse attention tests
-│   └── sparse_attention/         # Advanced sparse tests
-│
-├── examples/                       # 📚 Examples (deprecated)
-│   ├── DEPRECATED_README.md      # Migration guide
-│   └── demo_*.py                 # Legacy demos
-│
-├── docs/                          # 📚 Documentation
-│   ├── IMPLEMENTATION_SUMMARY.md # This document
-│   ├── SPARSE_ATTENTION_RESULTS.md # Performance results
-│   └── README.md                 # Project documentation
-│
-└── repo/vggt/                     # 📦 VGGT model
-    ├── hubconf.py                # Torch hub config
-    └── vggt_model.pt            # Model weights (5GB)
+├── pyproject.toml                # Packaging configuration
+├── main.py                       # Shim entry point -> `vggt` CLI
+├── legacy/                       # Archived setup/requirements files
+├── examples/
+│   ├── sample_data/kitchen/     # Official VGGT demo frames
+│   ├── demo_vggt_mps.py         # Main demo
+│   ├── demo_portable.py         # Matplotlib demo
+│   └── vggt_mps_inference.py    # Direct API usage
+├── src/vggt_mps/                # Library + CLI implementation
+│   ├── commands/               # CLI subcommands
+│   ├── utils/                  # Helper modules
+│   └── ...
+├── tests/                       # Test suite
+├── models/                      # Downloaded checkpoints (empty by default)
+├── data/                        # User-provided images (empty by default)
+├── docs/                        # Documentation
+└── scripts/download_model.py    # Model downloader
 ```
+
+
+
 
 ## 🆕 v2.0.0 - Unified CLI Structure
 

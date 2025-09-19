@@ -25,6 +25,8 @@ models/
 .benchmarks/
 *.jpg
 *.png
+!examples/sample_data/**/*.jpg
+!examples/sample_data/**/*.png
 *.mp4
 *.avi
 *.mov

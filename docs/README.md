@@ -66,7 +66,18 @@ Expected output:
 ✅ MPS operations working correctly!
 ```
 
-### 4. Run Demo
+### 4. Built-in Sample Images
+
+We bundle four VGGT "kitchen" frames from the upstream project in
+`examples/sample_data/kitchen`. Demos automatically fall back to these images
+when `data/` is empty.
+
+```bash
+# Optionally copy them into data/
+cp examples/sample_data/kitchen/*.png data/
+```
+
+### 5. Run Demo
 
 ```bash
 # Create test images
@@ -117,34 +128,51 @@ python examples/demo_vggt_mps.py
 
 ```
 vggt-mps/
+├── pyproject.toml              # Modern packaging configuration
+├── main.py                      # Legacy shim -> `vggt` CLI
+├── legacy/                      # Archived setup/requirements files
+├── .env.example                 # Environment configuration
+│
 ├── src/                         # Source code
-│   ├── vggt_mps_mcp.py         # MCP server
-│   └── tools/                   # VGGT tools (11 total)
-│       ├── readme.py           # Quick inference
-│       ├── demo_gradio.py      # Video & 3D tools
-│       ├── demo_viser.py       # Visualization
-│       └── demo_colmap.py      # COLMAP integration
-├── examples/                    # Example scripts
+│   ├── config.py               # Centralized configuration
+│   ├── vggt_core.py            # Core VGGT processing
+│   ├── vggt_sparse_attention.py # Sparse attention (O(n) scaling)
+│   ├── visualization.py        # 3D visualization utilities
+│   │
+│   ├── commands/               # CLI commands
+│   │   ├── demo.py            # Demo command
+│   │   ├── reconstruct.py     # Reconstruction command
+│   │   ├── test_runner.py     # Test runner
+│   │   ├── benchmark.py       # Performance benchmarking
+│   │   └── web_interface.py   # Gradio web app
+│   │
+│   └── utils/                  # Utilities
+│       ├── model_loader.py    # Model management
+│       ├── image_utils.py     # Image processing
+│       └── export.py          # Export to PLY/OBJ/GLB
+│
+├── tests/                       # Organized test suite
+│   ├── test_mps.py            # MPS functionality tests
+│   ├── test_sparse.py         # Sparse attention tests
+│   └── test_integration.py    # End-to-end tests
+│
+├── examples/                    # Example scripts & sample data
+│   ├── sample_data/kitchen/   # Official VGGT kitchen frames
 │   ├── demo_vggt_mps.py       # Main demo
-│   ├── create_test_images.py  # Generate test data
+│   ├── demo_portable.py       # Matplotlib demo
 │   └── vggt_mps_inference.py  # Direct inference
-├── tests/                       # Test scripts
-│   ├── test_vggt_mps.py       # MPS test
-│   └── test_hub_load.py       # Hub loading test
 ├── scripts/                     # Utility scripts
 │   └── download_model.py      # Model downloader
-├── models/                      # Downloaded VGGT checkpoints
-├── repo/vggt/                   # VGGT source (read-only)
-│   └── hubconf.py              # Torch hub config
-├── tmp/                         # Working directory
-│   ├── inputs/                 # Input images
-│   └── outputs/                # Results
-├── legacy/                      # Legacy packaging files
-│   ├── setup.py                # Deprecated installer
-│   └── requirements.txt        # Deprecated dependencies
-├── README.md                    # Documentation
+├── data/                        # Input data directory
+├── outputs/                     # Output directory
+├── models/                      # Downloaded checkpoints
+├── docs/                        # Documentation
 └── LICENSE                      # MIT License
 ```
+
+
+
+
 
 ## 🖼️ Usage Examples
 

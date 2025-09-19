@@ -92,7 +92,18 @@ Expected output:
 ✅ MPS operations working correctly!
 ```
 
-### 4. Setup Environment (Optional)
+### 4. Built-in Sample Images
+
+We vendor four reference frames from the official VGGT "kitchen" scene in
+`examples/sample_data/kitchen`. Demos automatically fall back to these images
+when `data/` is empty.
+
+```bash
+# Optionally copy them into data/
+cp examples/sample_data/kitchen/*.png data/
+```
+
+### 5. Setup Environment (Optional)
 
 ```bash
 # Copy environment configuration
@@ -102,7 +113,7 @@ cp .env.example .env
 nano .env
 ```
 
-### 5. Usage
+### 6. Usage
 
 All functionality is accessible through the main entry point:
 
@@ -170,10 +181,9 @@ python main.py download
 
 ```
 vggt-mps/
-├── main.py                      # Single entry point
-├── legacy/                      # Legacy packaging files
-│   ├── setup.py                 # Deprecated installer
-│   └── requirements.txt         # Deprecated dependency list
+├── pyproject.toml              # Modern packaging configuration
+├── main.py                      # Legacy shim -> `vggt` CLI
+├── legacy/                      # Archived setup/requirements files
 ├── .env.example                 # Environment configuration
 │
 ├── src/                         # Source code
@@ -199,17 +209,23 @@ vggt-mps/
 │   ├── test_sparse.py         # Sparse attention tests
 │   └── test_integration.py    # End-to-end tests
 │
+├── examples/                    # Example scripts & sample data
+│   ├── sample_data/kitchen/   # Official VGGT kitchen frames
+│   ├── demo_vggt_mps.py       # Main demo
+│   ├── demo_portable.py       # Matplotlib demo
+│   └── vggt_mps_inference.py  # Direct inference
+├── scripts/                     # Utility scripts
+│   └── download_model.py      # Model downloader
 ├── data/                        # Input data directory
 ├── outputs/                     # Output directory
-├── models/                      # Model storage
-│
+├── models/                      # Downloaded checkpoints
 ├── docs/                        # Documentation
-│   ├── API.md                  # API documentation
-│   ├── SPARSE_ATTENTION.md    # Technical details
-│   └── BENCHMARKS.md          # Performance results
-│
 └── LICENSE                      # MIT License
 ```
+
+
+
+
 
 ## 🖼️ Usage Examples
 

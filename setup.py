@@ -58,8 +58,8 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "vggt-demo=examples.demo_portable:main",
-            "vggt-web=examples.web_interface:main",
+            "vggt=main:main",
+            "vggt-mps=main:main",
         ],
     },
     include_package_data=True,

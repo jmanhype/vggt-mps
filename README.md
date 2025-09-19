@@ -32,6 +32,21 @@ VGGT reconstructs 3D scenes from images by predicting:
 
 ### 1. Clone and Setup
 
+#### Option A: Quick Install with UV (Recommended - 10-100x faster!)
+
+```bash
+git clone https://github.com/jmanhype/vggt-mps.git
+cd vggt-mps
+
+# Install with uv
+make install
+
+# Or manually with uv
+uv pip install -e .
+```
+
+#### Option B: Traditional pip install
+
 ```bash
 git clone https://github.com/jmanhype/vggt-mps.git
 cd vggt-mps
@@ -42,9 +57,6 @@ source vggt-env/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Or install as package
-pip install -e .
 ```
 
 ### 2. Download Model Weights

@@ -42,6 +42,9 @@ source vggt-env/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Or install as package
+pip install -e .
 ```
 
 ### 2. Download Model Weights
@@ -67,17 +70,41 @@ Expected output:
 ✅ MPS operations working correctly!
 ```
 
-### 4. Run Demo
+### 4. Setup Environment (Optional)
 
 ```bash
-# Create test images
-python examples/create_test_images.py
+# Copy environment configuration
+cp .env.example .env
 
-# Run 3D reconstruction demo
-python examples/demo_vggt_mps.py
+# Edit .env with your settings
+nano .env
+```
 
-# Test sparse attention (O(n) scaling)
-python tests/sparse_attention/test_sparse_vggt_final.py
+### 5. Usage
+
+All functionality is accessible through the main entry point:
+
+```bash
+# Run demo with sample images
+python main.py demo
+
+# Run demo with kitchen dataset
+python main.py demo --kitchen --images 4
+
+# Process your own images
+python main.py reconstruct data/*.jpg
+
+# Launch web interface
+python main.py web
+
+# Run tests
+python main.py test --suite all
+
+# Benchmark performance
+python main.py benchmark --compare
+
+# Download model if needed
+python main.py download
 ```
 
 ## 🔧 MCP Server Integration
@@ -121,30 +148,43 @@ python tests/sparse_attention/test_sparse_vggt_final.py
 
 ```
 vggt-mps/
-├── src/                         # Source code
-│   ├── vggt_mps_mcp.py         # MCP server
-│   └── tools/                   # VGGT tools (11 total)
-│       ├── readme.py           # Quick inference
-│       ├── demo_gradio.py      # Video & 3D tools
-│       ├── demo_viser.py       # Visualization
-│       └── demo_colmap.py      # COLMAP integration
-├── examples/                    # Example scripts
-│   ├── demo_vggt_mps.py       # Main demo
-│   ├── create_test_images.py  # Generate test data
-│   └── vggt_mps_inference.py  # Direct inference
-├── tests/                       # Test scripts
-│   ├── test_vggt_mps.py       # MPS test
-│   └── test_hub_load.py       # Hub loading test
-├── scripts/                     # Utility scripts
-│   └── download_model.py      # Model downloader
-├── repo/vggt/                   # VGGT source
-│   ├── hubconf.py              # Torch hub config
-│   └── vggt_model.pt          # Model (5GB)
-├── tmp/                         # Working directory
-│   ├── inputs/                 # Input images
-│   └── outputs/                # Results
+├── main.py                      # Single entry point
+├── setup.py                     # Package installation
 ├── requirements.txt             # Dependencies
-├── README.md                    # Documentation
+├── .env.example                 # Environment configuration
+│
+├── src/                         # Source code
+│   ├── config.py               # Centralized configuration
+│   ├── vggt_core.py            # Core VGGT processing
+│   ├── vggt_sparse_attention.py # Sparse attention (O(n) scaling)
+│   ├── visualization.py        # 3D visualization utilities
+│   │
+│   ├── commands/               # CLI commands
+│   │   ├── demo.py            # Demo command
+│   │   ├── reconstruct.py     # Reconstruction command
+│   │   ├── test_runner.py     # Test runner
+│   │   ├── benchmark.py       # Performance benchmarking
+│   │   └── web_interface.py   # Gradio web app
+│   │
+│   └── utils/                  # Utilities
+│       ├── model_loader.py    # Model management
+│       ├── image_utils.py     # Image processing
+│       └── export.py          # Export to PLY/OBJ/GLB
+│
+├── tests/                       # Organized test suite
+│   ├── test_mps.py            # MPS functionality tests
+│   ├── test_sparse.py         # Sparse attention tests
+│   └── test_integration.py    # End-to-end tests
+│
+├── data/                        # Input data directory
+├── outputs/                     # Output directory
+├── models/                      # Model storage
+│
+├── docs/                        # Documentation
+│   ├── API.md                  # API documentation
+│   ├── SPARSE_ATTENTION.md    # Technical details
+│   └── BENCHMARKS.md          # Performance results
+│
 └── LICENSE                      # MIT License
 ```
 
@@ -263,7 +303,18 @@ ls -lh repo/vggt/vggt_model.pt
 
 ## 🤝 Contributing
 
-Contributions welcome! Please open issues for bugs or feature requests.
+We follow a lightweight Git Flow:
+
+- `main` holds the latest stable release and is protected.
+- `develop` is the default integration branch for day-to-day work.
+
+When contributing:
+
+1. Create your feature branch from `develop` (`git switch develop && git switch -c feature/my-change`).
+2. Keep commits focused and include tests or documentation updates when relevant.
+3. Open your pull request against `develop`; maintainers will promote changes to `main` during releases.
+
+Please open issues for bugs or feature requests before starting large efforts. Full details, testing expectations, and the release process live in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## 📄 License
 

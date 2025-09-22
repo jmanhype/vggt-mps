@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 import urllib.request
 import os
+import shutil
 
 # Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -33,7 +34,8 @@ def download_model(args):
 
     # Ensure model directory exists
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
-
+    target_path = MODEL_CONFIG["local_path"]
+        
     if args.source == "huggingface":
         print("\n📥 Downloading from HuggingFace...")
         try:
@@ -46,14 +48,15 @@ def download_model(args):
                 cache_dir=MODEL_DIR,
                 local_dir=MODEL_DIR
             )
-            print(f"✅ Downloaded to: {model_file}")
+            shutil.move(model_file, target_path)
+            print(f"✅ Downloaded to: {target_path}")
 
         except ImportError:
             print("⚠️ huggingface_hub not installed")
             print("Install with: pip install huggingface_hub")
             print("\nAlternatively, download manually from:")
             print(f"https://huggingface.co/{MODEL_CONFIG['huggingface_id']}/resolve/main/model.pt")
-            print(f"\nSave to: {MODEL_CONFIG['local_path']}")
+            print(f"\nSave to: {target_path}")
             return 1
 
         except Exception as e:
@@ -63,7 +66,6 @@ def download_model(args):
     else:  # direct download
         print("\n📥 Direct download...")
         url = f"https://huggingface.co/{MODEL_CONFIG['huggingface_id']}/resolve/main/model.pt"
-        target_path = MODEL_CONFIG["local_path"]
 
         print(f"URL: {url}")
         print(f"Target: {target_path}")

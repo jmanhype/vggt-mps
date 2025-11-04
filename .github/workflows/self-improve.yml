@@ -2,8 +2,9 @@ name: Claude Code Self-Improve
 
 on:
   schedule:
-    # Mondays at 06:00 America/Chicago (11:00 UTC)
-    - cron: "0 11 * * 1"
+    # Twice daily: 06:00 and 18:00 America/Chicago (11:00 and 23:00 UTC)
+    - cron: "0 11 * * *"
+    - cron: "0 23 * * *"
   workflow_dispatch:
 
 permissions:

@@ -114,7 +114,9 @@ def vggt_reconstruct_3d_scene_simplified(
     if device == "cuda":
         try:
             dtype = torch.bfloat16 if torch.cuda.get_device_capability()[0] >= 8 else torch.float16
-        except:
+        except (RuntimeError, AttributeError) as e:
+            # Fallback to float16 if unable to query device capability
+            print(f"⚠️ Could not determine CUDA device capability ({type(e).__name__}), using float16")
             dtype = torch.float16
     elif device == "mps":
         dtype = torch.float32  # MPS works best with float32

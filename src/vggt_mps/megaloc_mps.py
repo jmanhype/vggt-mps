@@ -60,8 +60,9 @@ class MegaLocMPS(nn.Module):
             model = model.to(self.device)
             model.eval()
             return model
-        except:
-            print("⚠️ Could not load DINOv2, using placeholder")
+        except (RuntimeError, ImportError, OSError, ConnectionError) as e:
+            print(f"⚠️ Could not load DINOv2 (reason: {type(e).__name__}: {e})")
+            print("   Falling back to placeholder identity model")
             # Placeholder if DINOv2 not available
             return nn.Identity()
 
@@ -240,9 +241,21 @@ def integrate_with_vggt(vggt_model, megaloc_model):
                 images.unsqueeze(0) if images.ndim == 4 else images
             )
 
-        # TODO: Modify VGGT's aggregator to use this mask
-        # This would require patching the attention layers
-        # For now, just call original forward
+        # TODO: Integrate attention mask into VGGT's attention mechanism
+        #
+        # Implementation approach:
+        # 1. Patch VGGT's transformer attention layers (likely in layers/attention.py)
+        # 2. Inject attention_mask into scaled_dot_product_attention calls
+        # 3. Ensure mask broadcasting matches attention shape: [B, num_heads, S, S]
+        # 4. Apply mask before softmax: scores = scores.masked_fill(mask == 0, float('-inf'))
+        #
+        # Challenges:
+        # - VGGT's aggregator may use custom attention implementation
+        # - Need to identify correct layer insertion point
+        # - Must preserve gradient flow for training compatibility
+        #
+        # Current behavior: Mask is computed but not applied (graceful degradation)
+        # The model runs with full O(n²) attention until integration is complete
         return original_forward(images, query_points)
 
     # Replace forward method

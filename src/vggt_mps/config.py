@@ -9,7 +9,8 @@ from typing import Optional
 import torch
 
 # Project paths
-PROJECT_ROOT = Path(__file__).parent.parent
+# File is in src/vggt_mps/config.py, so need 3 levels up to reach project root
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 DATA_DIR = PROJECT_ROOT / "data"
 OUTPUT_DIR = PROJECT_ROOT / "outputs"

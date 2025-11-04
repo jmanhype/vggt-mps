@@ -67,14 +67,20 @@ class VGGTProcessor:
             try:
                 self.model = VGGT()
                 checkpoint = torch.load(model_path, map_location=self.device, weights_only=True)
+
+                # Validate checkpoint format
+                if not isinstance(checkpoint, dict):
+                    raise ValueError(f"Invalid checkpoint format: expected dict, got {type(checkpoint)}")
+
                 self.model.load_state_dict(checkpoint)
                 self.model = self.model.to(self.device)
             except Exception as e:
                 print(f"⚠️ Error loading model from disk: {e}")
                 print("   Attempting to load from HuggingFace...")
+                self.model = None  # Clear corrupted model state
                 model_path = None  # Trigger HuggingFace fallback
 
-        if model_path is None or not model_path.exists():
+        if model_path is None:
             print("📥 Loading model from HuggingFace...")
             try:
                 self.model = VGGT.from_pretrained("facebook/VGGT-1B").to(self.device)
@@ -96,11 +102,28 @@ class VGGTProcessor:
 
         Returns:
             Dict containing depth maps, camera poses, and point cloud, or list of depth maps as fallback
+
+        Raises:
+            ValueError: If images list is empty or contains invalid data
         """
+        # Input validation
+        if not images:
+            raise ValueError("Empty image list provided")
+
+        if not isinstance(images, list):
+            raise ValueError(f"Expected list of images, got {type(images)}")
+
+        for i, img in enumerate(images):
+            if not isinstance(img, np.ndarray):
+                raise ValueError(f"Image {i} is not a numpy array: {type(img)}")
+            if img.ndim != 3 or img.shape[2] != 3:
+                raise ValueError(f"Image {i} has invalid shape {img.shape}, expected (H, W, 3)")
+
         # Ensure model is loaded
         if self.model is None:
             self.load_model()
 
+        # Check if model loaded successfully after attempting to load
         if self.model is None:
             # Fallback to simulated depth
             print("⚠️ Using simulated depth (model not available)")

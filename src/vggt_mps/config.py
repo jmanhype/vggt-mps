@@ -24,11 +24,17 @@ MODEL_DIR = PROJECT_ROOT / "models"
 REPO_DIR = PROJECT_ROOT / "repo"
 
 # Validate path calculation - check for expected project markers
-if not (PROJECT_ROOT / "src").exists():
-    # Fallback for edge cases (e.g., single-file script execution)
+# This validation ensures PROJECT_ROOT works correctly across:
+# 1. pip install (site-packages/vggt_mps/)
+# 2. editable install (pip install -e .)
+# 3. direct execution (python -m vggt_mps.*)
+if not (PROJECT_ROOT / "src").exists() and not (PROJECT_ROOT / "pyproject.toml").exists():
+    # Fallback for edge cases (e.g., installed package in site-packages)
     import warnings
     warnings.warn(
-        f"PROJECT_ROOT calculation may be incorrect. Expected src/ directory at: {PROJECT_ROOT / 'src'}",
+        f"PROJECT_ROOT calculation may be incorrect. "
+        f"Expected 'src/' or 'pyproject.toml' at: {PROJECT_ROOT}. "
+        f"Current __file__: {__file__}",
         RuntimeWarning
     )
 

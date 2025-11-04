@@ -64,6 +64,7 @@ class VGGTProcessor:
 
         # Try loading from local path if provided
         load_from_local = model_path is not None and model_path.exists()
+        local_load_failed = False
 
         if load_from_local:
             print(f"📂 Loading model from: {model_path}")
@@ -83,9 +84,13 @@ class VGGTProcessor:
                 print(f"⚠️ Error loading model from disk: {e}")
                 print("   Attempting to load from HuggingFace...")
                 self.model = None  # Clear corrupted model state
+                local_load_failed = True  # Flag to ensure HuggingFace fallback
 
-        # Try HuggingFace fallback if local loading failed or no path provided
-        if self.model is None:
+        # Try HuggingFace fallback if:
+        # 1. No local path was provided (model_path is None)
+        # 2. Local path doesn't exist
+        # 3. Local loading failed with exception
+        if self.model is None and (model_path is None or not model_path.exists() or local_load_failed):
             print("📥 Loading model from HuggingFace...")
             try:
                 self.model = VGGT.from_pretrained("facebook/VGGT-1B").to(self.device)
@@ -128,10 +133,13 @@ class VGGTProcessor:
         if self.model is None:
             self.load_model()
 
-        # Check if model loaded successfully after attempting to load
+        # Verify model loaded successfully after load attempt
+        # Note: This is intentional graceful degradation, not an error condition
+        # The system can still function with simulated depth for testing/development
         if self.model is None:
-            # Fallback to simulated depth
-            print("⚠️ Using simulated depth (model not available)")
+            print("⚠️ Model could not be loaded from any source (local or HuggingFace)")
+            print("   Falling back to simulated depth for testing purposes")
+            print("   To use real model: run 'vggt download' or check network connection")
             return self._simulate_depth(images)
 
         # Process with real model

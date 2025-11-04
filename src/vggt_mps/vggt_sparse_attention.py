@@ -29,13 +29,26 @@ class SparseAttentionAggregator(nn.Module):
     """
 
     def __init__(self, original_aggregator: nn.Module, megaloc: MegaLocMPS):
+        """
+        Initialize sparse attention aggregator.
+
+        Args:
+            original_aggregator: Original VGGT aggregator module with pretrained weights
+            megaloc: MegaLoc model for computing covisibility masks
+        """
         super().__init__()
         self.aggregator = original_aggregator
         self.megaloc = megaloc
         self.attention_mask = None
 
-    def set_covisibility_mask(self, images: torch.Tensor):
-        """Precompute covisibility mask for current batch"""
+    def set_covisibility_mask(self, images: torch.Tensor) -> None:
+        """
+        Precompute covisibility mask for current batch.
+
+        Args:
+            images: Input images tensor of shape [B, S, C, H, W] or [S, C, H, W]
+                   where B=batch, S=sequence, C=channels, H=height, W=width
+        """
         with torch.no_grad():
             # Handle both [S, C, H, W] and [B, S, C, H, W] formats
             if images.ndim == 4:

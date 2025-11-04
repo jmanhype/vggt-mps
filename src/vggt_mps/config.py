@@ -1,6 +1,21 @@
 """
 VGGT-MPS Configuration
-Centralized configuration management
+Centralized configuration management for the VGGT-MPS package.
+
+This module provides:
+- Device detection and configuration (MPS, CUDA, CPU)
+- Model paths and metadata
+- Sparse attention settings
+- Camera and processing parameters
+- Web interface configuration
+- Environment variable integration
+
+Example:
+    >>> from vggt_mps.config import DEVICE, get_model_path
+    >>> print(f"Using device: {DEVICE}")
+    >>> model_path = get_model_path()
+    >>> if is_model_available():
+    ...     print("Model is ready")
 """
 
 import os
@@ -30,8 +45,22 @@ MODEL_CONFIG = {
 }
 
 # Device configuration
-def get_device():
-    """Get the best available device"""
+def get_device() -> torch.device:
+    """Get the best available device for computation.
+
+    Checks device availability in order of preference:
+    1. MPS (Metal Performance Shaders) for Apple Silicon
+    2. CUDA for NVIDIA GPUs
+    3. CPU as fallback
+
+    Returns:
+        torch.device: The optimal available device
+
+    Example:
+        >>> device = get_device()
+        >>> print(f"Using {device}")
+        Using mps
+    """
     if torch.backends.mps.is_available():
         return torch.device("mps")
     elif torch.cuda.is_available():
@@ -91,8 +120,24 @@ LOGGING = {
 }
 
 # Environment variables override
-def load_from_env():
-    """Load configuration from environment variables"""
+def load_from_env() -> None:
+    """Load configuration overrides from environment variables.
+
+    Supported environment variables:
+    - USE_SPARSE_ATTENTION: Enable/disable sparse attention (true/false)
+    - COVISIBILITY_THRESHOLD: Threshold for covisibility detection (0.0-1.0)
+    - WEB_PORT: Port for web interface (integer)
+    - WEB_SHARE: Enable public sharing (true/false)
+
+    Note:
+        This function modifies global configuration dictionaries.
+        It is called automatically on module import.
+
+    Example:
+        >>> import os
+        >>> os.environ['WEB_PORT'] = '8080'
+        >>> load_from_env()
+    """
     global SPARSE_CONFIG, WEB_CONFIG
 
     if os.getenv("USE_SPARSE_ATTENTION"):
@@ -112,7 +157,21 @@ load_from_env()
 
 # Utility functions
 def get_model_path() -> Path:
-    """Get model path, checking multiple locations"""
+    """Get the path to the VGGT model weights.
+
+    Checks multiple locations in order:
+    1. Local models directory (models/vggt_model.pt)
+    2. Repository directory (repo/vggt/vggt_model.pt)
+    3. Returns expected path even if file doesn't exist
+
+    Returns:
+        Path: Path to the model file (may not exist yet)
+
+    Example:
+        >>> model_path = get_model_path()
+        >>> if model_path.exists():
+        ...     print(f"Model found at {model_path}")
+    """
     # Check local path first
     if MODEL_CONFIG["local_path"].exists():
         return MODEL_CONFIG["local_path"]
@@ -125,5 +184,15 @@ def get_model_path() -> Path:
     return MODEL_CONFIG["local_path"]  # Return expected path even if not exists
 
 def is_model_available() -> bool:
-    """Check if model is available locally"""
+    """Check if the VGGT model weights are available locally.
+
+    Returns:
+        bool: True if model file exists, False otherwise
+
+    Example:
+        >>> if is_model_available():
+        ...     print("Model ready to use")
+        ... else:
+        ...     print("Run 'vggt download' to get the model")
+    """
     return get_model_path().exists()

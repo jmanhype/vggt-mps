@@ -302,3 +302,206 @@ jobs:
             gh pr comment $PR_NUMBER --body-file /tmp/trace-comment.md
             echo "✓ Posted execution traces to PR #$PR_NUMBER"
           fi
+
+  # TRUE RECURSIVE LOOP: Read Qodo feedback and incorporate it
+  qodo-feedback-loop:
+    needs: aggregate-and-pr
+    runs-on: ubuntu-latest
+    if: always()
+    strategy:
+      matrix:
+        iteration: [1, 2, 3]  # Max 3 iterations
+      max-parallel: 1  # Sequential - wait for Qodo review each time
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Wait for Qodo review
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=$(gh pr list --head $(git branch --show-current) --json number --jq '.[0].number' || echo "")
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "⚠️ No PR found, skipping feedback loop"
+            exit 0
+          fi
+
+          echo "⏳ Waiting for Qodo review on PR #$PR_NUMBER (iteration ${{ matrix.iteration }})..."
+
+          # Wait up to 5 minutes for Qodo to respond
+          for i in {1..30}; do
+            QODO_COMMENTS=$(gh api repos/${{ github.repository }}/issues/$PR_NUMBER/comments \
+              | jq -r '[.[] | select(.user.login | contains("qodo"))] | length')
+
+            if [ "$QODO_COMMENTS" -gt "0" ]; then
+              echo "✓ Qodo has posted $QODO_COMMENTS comments"
+              break
+            fi
+
+            echo "  Waiting... ($i/30)"
+            sleep 10
+          done
+
+      - name: Read Qodo feedback and incorporate changes
+        id: feedback-iteration
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          show_full_output: true
+          prompt: |
+            You are in a RECURSIVE FEEDBACK LOOP (iteration ${{ matrix.iteration }}/3).
+
+            === MISSION ===
+            Read Qodo Merge Pro's review feedback on the PR and incorporate ALL suggested improvements.
+            This is the TRUE recursive loop - you improve based on execution feedback!
+
+            === EXECUTION FEEDBACK SOURCE ===
+
+            Qodo Merge Pro has analyzed your PR and provided:
+            1. PR Description (/describe output)
+            2. Code Review (/review output)
+            3. Suggested improvements
+            4. Compliance issues
+            5. Security concerns
+            6. Performance recommendations
+
+            === YOUR TASK ===
+
+            STEP 1: FETCH QODO FEEDBACK
+            ```bash
+            # Get PR number
+            PR_NUM=$(gh pr list --head $(git branch --show-current) --json number --jq '.[0].number')
+
+            # Fetch all Qodo comments
+            gh api repos/${{ github.repository }}/issues/$PR_NUM/comments \
+              | jq -r '.[] | select(.user.login | contains("qodo")) | .body' \
+              > .rlm-trace/qodo-feedback-iter-${{ matrix.iteration }}.md
+
+            # Read the feedback
+            cat .rlm-trace/qodo-feedback-iter-${{ matrix.iteration }}.md
+            ```
+
+            STEP 2: ANALYZE FEEDBACK
+            Parse Qodo's review to identify:
+            - 🔴 Critical issues (MUST fix)
+            - 🟡 Suggested improvements (SHOULD fix)
+            - 🟢 Nice-to-haves (MAY fix)
+            - ✅ Approved items (keep as-is)
+
+            STEP 3: IMPLEMENT IMPROVEMENTS
+            For each issue/suggestion from Qodo:
+            - Read the file mentioned
+            - Apply the suggested fix
+            - Validate it doesn't break anything
+            - Update execution trace
+
+            STEP 4: VALIDATE
+            ```bash
+            # Run tests if available
+            pytest tests/ || make test || python -m pytest || npm test
+            ```
+
+            STEP 5: COMMIT & PUSH
+            ```bash
+            git add .
+            git commit -m "fix: incorporate Qodo feedback (iteration ${{ matrix.iteration }})
+
+            Applied Qodo Merge Pro suggestions:
+            - [list specific changes]
+
+            Iteration: ${{ matrix.iteration }}/3
+            Receipt: $(git rev-parse HEAD)"
+
+            git push origin $(git branch --show-current)
+            ```
+
+            STEP 6: CREATE FEEDBACK TRACE
+            Document what you changed in response to Qodo:
+
+            ```markdown
+            # Qodo Feedback Iteration ${{ matrix.iteration }}
+
+            ## Feedback Received
+            [Summary of Qodo's review]
+
+            ## Critical Issues Fixed
+            - Issue 1: [description]
+              - File: [file]
+              - Fix: [what you did]
+
+            ## Improvements Implemented
+            - Improvement 1: [description]
+              - File: [file]
+              - Change: [what you did]
+
+            ## Skipped (with rationale)
+            - Suggestion X: [why you didn't implement it]
+
+            ## Validation
+            - Tests run: [command]
+            - Tests passed: [yes/no]
+
+            ## Receipt
+            Commit: $(git rev-parse HEAD)
+            Iteration: ${{ matrix.iteration }}/3
+            ```
+
+            === STOPPING CONDITION ===
+
+            If Qodo's latest review shows:
+            - No critical issues
+            - No "must fix" suggestions
+            - Mostly approvals
+
+            Then add this to your trace:
+            ```
+            ## Loop Termination
+            Qodo feedback loop complete - no critical issues remaining.
+            ```
+
+            And exit successfully.
+
+            === IMPORTANT ===
+
+            - This is EXECUTION FEEDBACK - the recursive loop in RLMs
+            - You're reading Qodo's analysis of your OWN code
+            - Incorporate the feedback to improve the PR
+            - Each iteration makes the PR better
+            - Max 3 iterations to avoid infinite loops
+            - Be surgical - only change what Qodo suggested
+
+            Remember: This is the TRUE recursive pattern - read execution traces (Qodo's review),
+            improve based on feedback, then Qodo reviews again. Repeat until convergence!
+
+          claude_args: |
+            --max-turns 50
+            --model claude-sonnet-4-5-20250929
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(gh:*),Bash(pytest:*),Bash(python:*),Bash(make:*),Bash(test:*),Bash(npm:*)"
+            --system-prompt "You are in a recursive feedback loop. Read Qodo's review, implement ALL suggestions, push changes. This is execution feedback - the core of recursive improvement!"
+
+      - name: Re-trigger Qodo review
+        if: steps.feedback-iteration.conclusion == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=$(gh pr list --head $(git branch --show-current) --json number --jq '.[0].number' || echo "")
+
+          if [ -n "$PR_NUMBER" ]; then
+            echo "🔄 Triggering Qodo review for iteration ${{ matrix.iteration }}"
+            gh pr comment $PR_NUMBER --body "/review"
+
+            # Comment about iteration
+            gh pr comment $PR_NUMBER --body "🔄 **Recursive Feedback Loop - Iteration ${{ matrix.iteration }}/3**
+
+            Incorporated Qodo's feedback and updated the PR. Requesting re-review to validate improvements."
+          fi
+
+      - name: Upload feedback trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qodo-feedback-iter-${{ matrix.iteration }}
+          path: .rlm-trace/qodo-feedback-iter-${{ matrix.iteration }}.md
+          retention-days: 30

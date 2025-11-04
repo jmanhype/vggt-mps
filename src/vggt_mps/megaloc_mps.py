@@ -52,7 +52,7 @@ class MegaLocMPS(nn.Module):
         # Output dimension
         self.out_dim = num_clusters * cluster_dim + token_dim
 
-    def _load_dinov2(self):
+    def _load_dinov2(self) -> nn.Module:
         """Load DINOv2 backbone optimized for MPS"""
         try:
             # Load DINOv2 ViT-B/14
@@ -60,8 +60,9 @@ class MegaLocMPS(nn.Module):
             model = model.to(self.device)
             model.eval()
             return model
-        except:
-            print("⚠️ Could not load DINOv2, using placeholder")
+        except Exception as e:
+            print(f"⚠️ Could not load DINOv2: {e}")
+            print("   Using placeholder for testing")
             # Placeholder if DINOv2 not available
             return nn.Identity()
 

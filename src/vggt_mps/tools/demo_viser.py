@@ -104,7 +104,7 @@ def vggt_reconstruct_3d_scene(
     if device == "cuda":
         try:
             dtype = torch.bfloat16 if torch.cuda.get_device_capability()[0] >= 8 else torch.float16
-        except:
+        except Exception:
             dtype = torch.float16
     elif device == "mps":
         dtype = torch.float32  # MPS works best with float32
@@ -365,7 +365,7 @@ def vggt_visualize_reconstruction(
     if device == "cuda":
         try:
             dtype = torch.bfloat16 if torch.cuda.get_device_capability()[0] >= 8 else torch.float16
-        except:
+        except Exception:
             dtype = torch.float16
     elif device == "mps":
         dtype = torch.float32  # MPS works best with float32

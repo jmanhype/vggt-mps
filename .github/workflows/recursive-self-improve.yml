@@ -274,9 +274,9 @@ jobs:
           if [ -n "$EXISTING_PR" ]; then
             echo "✓ PR already created by depth 3: #$EXISTING_PR"
 
-            # Trigger Qodo review
-            gh pr comment $EXISTING_PR --body "/describe"
-            gh pr comment $EXISTING_PR --body "/review"
+            # Trigger Qodo review (using PAT so commands appear from user, not github-actions bot)
+            GH_TOKEN="${{ secrets.PERSONAL_ACCESS_TOKEN }}" gh pr comment $EXISTING_PR --body "/describe"
+            GH_TOKEN="${{ secrets.PERSONAL_ACCESS_TOKEN }}" gh pr comment $EXISTING_PR --body "/review"
 
             echo "✓ Qodo review triggered on PR #$EXISTING_PR"
           else
@@ -507,7 +507,9 @@ jobs:
 
           if [ -n "$PR_NUMBER" ]; then
             echo "🔄 Triggering Qodo review for iteration ${{ matrix.iteration }}"
-            gh pr comment $PR_NUMBER --body "/review"
+
+            # Use PAT for /review command so it appears from user, not github-actions bot
+            GH_TOKEN="${{ secrets.PERSONAL_ACCESS_TOKEN }}" gh pr comment $PR_NUMBER --body "/review"
 
             # Comment about iteration
             gh pr comment $PR_NUMBER --body "🔄 **Recursive Feedback Loop - Iteration ${{ matrix.iteration }}/3**

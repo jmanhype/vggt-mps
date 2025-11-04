@@ -11,12 +11,21 @@ import torch
 # Project paths
 # File is at: src/vggt_mps/config.py
 # __file__ is in src/vggt_mps/config.py, so parent.parent.parent gets project root
+# This works for: pip install, editable install (pip install -e .), and direct execution
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 DATA_DIR = PROJECT_ROOT / "data"
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
 MODEL_DIR = PROJECT_ROOT / "models"
 REPO_DIR = PROJECT_ROOT / "repo"
+
+# Validate path calculation to catch edge cases
+if not (PROJECT_ROOT / "src").exists():
+    import warnings
+    warnings.warn(
+        f"PROJECT_ROOT calculation may be incorrect. Expected src/ directory at: {PROJECT_ROOT / 'src'}",
+        RuntimeWarning
+    )
 
 # Create directories if they don't exist
 for dir_path in [DATA_DIR, OUTPUT_DIR, MODEL_DIR]:

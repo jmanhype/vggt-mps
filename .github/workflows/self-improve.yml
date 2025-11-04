@@ -20,6 +20,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "Jay Straughter"
+          git config --global user.email "jmanhype@gmail.com"
+
       - name: Run Claude Code Self-Improvement
         uses: anthropics/claude-code-action@v1
         with:

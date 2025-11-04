@@ -63,10 +63,10 @@ class VGGTProcessor:
                     break
 
         # Try loading from local path if provided
-        load_from_local = model_path is not None and model_path.exists()
-        local_load_failed = False
+        try_huggingface = False  # Flag to control HuggingFace fallback
 
-        if load_from_local:
+        if model_path is not None and model_path.exists():
+            # Local model file exists - try loading it
             print(f"📂 Loading model from: {model_path}")
             try:
                 self.model = VGGT()
@@ -84,13 +84,18 @@ class VGGTProcessor:
                 print(f"⚠️ Error loading model from disk: {e}")
                 print("   Attempting to load from HuggingFace...")
                 self.model = None  # Clear corrupted model state
-                local_load_failed = True  # Flag to ensure HuggingFace fallback
+                try_huggingface = True  # Trigger HuggingFace fallback
+        else:
+            # No local model available
+            if model_path is not None:
+                print(f"⚠️ Local model not found at: {model_path}")
+            try_huggingface = True
 
         # Try HuggingFace fallback if:
         # 1. No local path was provided (model_path is None)
         # 2. Local path doesn't exist
         # 3. Local loading failed with exception
-        if self.model is None and (model_path is None or not model_path.exists() or local_load_failed):
+        if self.model is None and try_huggingface:
             print("📥 Loading model from HuggingFace...")
             try:
                 self.model = VGGT.from_pretrained("facebook/VGGT-1B").to(self.device)
@@ -134,10 +139,14 @@ class VGGTProcessor:
             self.load_model()
 
         # Verify model loaded successfully after load attempt
+        # Check both that model exists AND that it has required methods
         # Note: This is intentional graceful degradation, not an error condition
         # The system can still function with simulated depth for testing/development
-        if self.model is None:
-            print("⚠️ Model could not be loaded from any source (local or HuggingFace)")
+        if self.model is None or not hasattr(self.model, 'eval'):
+            if self.model is not None:
+                print("⚠️ Model loaded but appears to be invalid (missing required methods)")
+            else:
+                print("⚠️ Model could not be loaded from any source (local or HuggingFace)")
             print("   Falling back to simulated depth for testing purposes")
             print("   To use real model: run 'vggt download' or check network connection")
             return self._simulate_depth(images)

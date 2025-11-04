@@ -28,13 +28,34 @@ REPO_DIR = PROJECT_ROOT / "repo"
 # 1. pip install (site-packages/vggt_mps/)
 # 2. editable install (pip install -e .)
 # 3. direct execution (python -m vggt_mps.*)
-if not (PROJECT_ROOT / "src").exists() and not (PROJECT_ROOT / "pyproject.toml").exists():
-    # Fallback for edge cases (e.g., installed package in site-packages)
-    import warnings
+import warnings
+
+# Check for multiple project markers to ensure correct path resolution
+project_markers = [
+    (PROJECT_ROOT / "src", "src/ directory"),
+    (PROJECT_ROOT / "pyproject.toml", "pyproject.toml"),
+    (PROJECT_ROOT / "setup.py", "setup.py"),
+    (PROJECT_ROOT / "README.md", "README.md"),
+]
+
+found_markers = [name for path, name in project_markers if path.exists()]
+
+if not found_markers:
+    # No project markers found - likely incorrect path calculation
     warnings.warn(
         f"PROJECT_ROOT calculation may be incorrect. "
-        f"Expected 'src/' or 'pyproject.toml' at: {PROJECT_ROOT}. "
-        f"Current __file__: {__file__}",
+        f"No project markers found at: {PROJECT_ROOT}\n"
+        f"Current __file__: {__file__}\n"
+        f"Looked for: {', '.join(name for _, name in project_markers)}\n"
+        f"Installation method detection: "
+        f"{'site-packages' if 'site-packages' in str(Path(__file__)) else 'local/editable'}",
+        RuntimeWarning
+    )
+elif len(found_markers) == 1 and found_markers[0] == "src/ directory":
+    # Only src/ found - should have at least one config file too
+    warnings.warn(
+        f"PROJECT_ROOT validation partial: found {found_markers[0]} but missing config files. "
+        f"Path: {PROJECT_ROOT}",
         RuntimeWarning
     )
 

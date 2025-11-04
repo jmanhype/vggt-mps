@@ -48,8 +48,12 @@ MODEL_CONFIG = {
 LEGACY_MODEL_PATH = REPO_DIR / "vggt" / "vggt_model.pt"
 
 # Device configuration
-def get_device():
-    """Get the best available device"""
+def get_device() -> torch.device:
+    """Get the best available device.
+
+    Returns:
+        torch.device: The best available device (mps > cuda > cpu)
+    """
     if torch.backends.mps.is_available():
         return torch.device("mps")
     elif torch.cuda.is_available():
@@ -109,28 +113,39 @@ LOGGING = {
 }
 
 # Environment variables override
-def load_from_env():
-    """Load configuration from environment variables"""
+def load_from_env() -> None:
+    """Load configuration from environment variables.
+
+    Overrides global configuration dictionaries based on environment variables:
+    - USE_SPARSE_ATTENTION: Enable/disable sparse attention
+    - COVISIBILITY_THRESHOLD: Set covisibility threshold
+    - WEB_PORT: Set web interface port
+    - WEB_SHARE: Enable/disable public sharing
+    """
     global SPARSE_CONFIG, WEB_CONFIG
 
     if os.getenv("USE_SPARSE_ATTENTION"):
-        SPARSE_CONFIG["enabled"] = os.getenv("USE_SPARSE_ATTENTION").lower() == "true"
+        SPARSE_CONFIG["enabled"] = os.getenv("USE_SPARSE_ATTENTION", "").lower() == "true"
 
     if os.getenv("COVISIBILITY_THRESHOLD"):
-        SPARSE_CONFIG["covisibility_threshold"] = float(os.getenv("COVISIBILITY_THRESHOLD"))
+        SPARSE_CONFIG["covisibility_threshold"] = float(os.getenv("COVISIBILITY_THRESHOLD", "0.7"))
 
     if os.getenv("WEB_PORT"):
-        WEB_CONFIG["default_port"] = int(os.getenv("WEB_PORT"))
+        WEB_CONFIG["default_port"] = int(os.getenv("WEB_PORT", "7860"))
 
     if os.getenv("WEB_SHARE"):
-        WEB_CONFIG["share"] = os.getenv("WEB_SHARE").lower() == "true"
+        WEB_CONFIG["share"] = os.getenv("WEB_SHARE", "").lower() == "true"
 
 # Load environment variables on import
 load_from_env()
 
 # Utility functions
 def get_model_path() -> Path:
-    """Get model path, checking multiple locations"""
+    """Get model path, checking multiple locations.
+
+    Returns:
+        Path: Path to model file (may not exist if model not downloaded)
+    """
     target_path = MODEL_CONFIG["local_path"]
     if target_path.exists():
         return target_path
@@ -144,5 +159,9 @@ def get_model_path() -> Path:
     return target_path  # Return expected path even if not exists
 
 def is_model_available() -> bool:
-    """Check if model is available locally"""
+    """Check if model is available locally.
+
+    Returns:
+        bool: True if model file exists, False otherwise
+    """
     return get_model_path().exists()

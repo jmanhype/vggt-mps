@@ -7,7 +7,8 @@ import argparse
 import sys
 from pathlib import Path
 
-def main():
+def main() -> None:
+    """Main entry point for VGGT-MPS CLI."""
     parser = argparse.ArgumentParser(
         description="VGGT 3D Reconstruction on Apple Silicon",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -74,33 +75,48 @@ Examples:
         parser.print_help()
         return
 
-    # Import only what we need
-    if args.command == "demo":
-        from .commands.demo import run_demo
-        run_demo(args)
+    # Import only what we need and execute with error handling
+    try:
+        if args.command == "demo":
+            from .commands.demo import run_demo
+            run_demo(args)
 
-    elif args.command == "reconstruct":
-        from .commands.reconstruct import run_reconstruction
-        run_reconstruction(args)
+        elif args.command == "reconstruct":
+            from .commands.reconstruct import run_reconstruction
+            run_reconstruction(args)
 
-    elif args.command == "web":
-        from .commands.web_interface import launch_web_interface
-        launch_web_interface(args)
+        elif args.command == "web":
+            from .commands.web_interface import launch_web_interface
+            launch_web_interface(args)
 
-    elif args.command == "test":
-        from .commands.test_runner import run_tests
-        run_tests(args)
+        elif args.command == "test":
+            from .commands.test_runner import run_tests
+            run_tests(args)
 
-    elif args.command == "benchmark":
-        from .commands.benchmark import run_benchmark
-        run_benchmark(args)
+        elif args.command == "benchmark":
+            from .commands.benchmark import run_benchmark
+            run_benchmark(args)
 
-    elif args.command == "download":
-        from .commands.download_model import download_model
-        download_model(args)
+        elif args.command == "download":
+            from .commands.download_model import download_model
+            download_model(args)
 
-    else:
-        parser.print_help()
+        else:
+            parser.print_help()
+
+    except KeyboardInterrupt:
+        print("\n\n⚠️  Interrupted by user")
+        sys.exit(130)
+    except ImportError as e:
+        print(f"\n❌ Import error: {e}")
+        print("   Try installing missing dependencies with: pip install -e .")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        print(f"   Command: {args.command}")
+        if "--debug" in sys.argv:
+            raise
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

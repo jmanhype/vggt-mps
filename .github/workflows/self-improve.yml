@@ -1,0 +1,11 @@
+name: Self-Improve
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+  issues:
+    types: [labeled]
+jobs:
+  call-reusable:
+    uses: jmanhype/.github/.github/workflows/ai-self-improve.yml@main
+    secrets: inherit

@@ -99,15 +99,14 @@ jobs:
             --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(gh:*),Bash(pytest:*),Bash(python:*),Bash(make:*),Bash(find:*),Bash(wc:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(ls:*),Bash(tree:*)"
             --system-prompt "You are a senior software engineer conducting autonomous recursive code review. Use RLM patterns: peek, grep, partition, recurse. Prioritize high-impact improvements. Be surgical and focused."
 
-
       - name: Trigger Qodo Review
         if: steps.anthropics-claude-code-action.outputs.pr_number != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: \${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR_NUMBER=$(gh pr list --head $(git branch --show-current) --json number --jq '.[0].number')
-          if [ -n "$PR_NUMBER" ]; then
-            echo "Commenting on PR #$PR_NUMBER to trigger Qodo review"
-            gh pr comment $PR_NUMBER --body "/describe"
-            gh pr comment $PR_NUMBER --body "/review"
+          PR_NUMBER=\$(gh pr list --head \$(git branch --show-current) --json number --jq '.[0].number')
+          if [ -n "\$PR_NUMBER" ]; then
+            echo "Commenting on PR #\$PR_NUMBER to trigger Qodo review"
+            gh pr comment \$PR_NUMBER --body "/describe"
+            gh pr comment \$PR_NUMBER --body "/review"
           fi

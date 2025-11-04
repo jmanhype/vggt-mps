@@ -1,0 +1,30 @@
+# CODEOWNERS file for vggt-mps
+# This file defines code ownership for automated review requests.
+#
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @jmanhype
+
+# Documentation
+*.md @jmanhype
+/docs/ @jmanhype
+
+# Python packaging and configuration
+pyproject.toml @jmanhype
+setup.py @jmanhype
+requirements.txt @jmanhype
+MANIFEST.in @jmanhype
+
+# CI/CD workflows
+/.github/ @jmanhype
+
+# Core source code
+/src/ @jmanhype
+
+# Tests
+/tests/ @jmanhype
+
+# Build and tooling
+Makefile @jmanhype
+.python-version @jmanhype

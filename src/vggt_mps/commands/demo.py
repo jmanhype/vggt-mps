@@ -4,6 +4,7 @@ Demo command for VGGT-MPS
 
 import sys
 from pathlib import Path
+from typing import Any
 import torch
 import numpy as np
 from PIL import Image
@@ -20,7 +21,7 @@ from vggt_mps.vggt_core import VGGTProcessor
 from vggt_mps.visualization import create_visualizations
 
 
-def run_demo(args):
+def run_demo(args: Any) -> None:
     """Run demo with sample images"""
     print("=" * 60)
     print("🚀 VGGT 3D Reconstruction Demo")

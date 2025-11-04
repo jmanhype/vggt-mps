@@ -6,6 +6,7 @@ Consolidates all tests into a single organized runner
 import sys
 import unittest
 from pathlib import Path
+from typing import Any
 import time
 
 # Add parent to path
@@ -13,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 
-def run_tests(args):
+def run_tests(args: Any) -> int:
     """Run specified test suite"""
     print("=" * 60)
     print("🧪 VGGT Test Runner")

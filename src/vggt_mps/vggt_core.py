@@ -31,25 +31,31 @@ class VGGTProcessor:
 
     def load_model(self, model_path: Optional[Path] = None) -> None:
         """
-        Load VGGT model
+        Load VGGT model with comprehensive error handling
 
         Args:
             model_path: Optional path to model weights
+
+        Raises:
+            ImportError: If VGGT module cannot be imported
+            RuntimeError: If model loading fails completely
         """
         if self.model is not None:
             return  # Already loaded
 
         try:
             from vggt.models.vggt import VGGT
-        except ImportError:
-            print("⚠️ VGGT module not found. Using simulated mode.")
+        except ImportError as e:
+            print(f"⚠️ VGGT module not found: {e}")
+            print("💡 Make sure repo/vggt is properly initialized")
+            print("   Using simulated mode for testing.")
             return
 
         if model_path is None:
             # Default paths to check
             possible_paths = [
-                Path(__file__).parent.parent / "models" / "vggt_model.pt",
-                Path(__file__).parent.parent / "repo" / "vggt" / "vggt_model.pt",
+                Path(__file__).parent.parent.parent / "models" / "vggt_model.pt",
+                Path(__file__).parent.parent.parent / "repo" / "vggt" / "vggt_model.pt",
             ]
             for path in possible_paths:
                 if path.exists():
@@ -58,17 +64,29 @@ class VGGTProcessor:
 
         if model_path and model_path.exists():
             print(f"📂 Loading model from: {model_path}")
-            self.model = VGGT()
-            checkpoint = torch.load(model_path, map_location=self.device)
-            self.model.load_state_dict(checkpoint)
-            self.model = self.model.to(self.device)
-        else:
+            try:
+                self.model = VGGT()
+                checkpoint = torch.load(model_path, map_location=self.device, weights_only=True)
+
+                if not isinstance(checkpoint, dict):
+                    raise ValueError(f"Invalid checkpoint format: expected dict, got {type(checkpoint)}")
+
+                self.model.load_state_dict(checkpoint)
+                self.model = self.model.to(self.device)
+            except Exception as e:
+                print(f"⚠️ Failed to load local model: {e}")
+                print("💡 Trying HuggingFace fallback...")
+                model_path = None  # Trigger HuggingFace fallback
+
+        if model_path is None or not model_path.exists():
             print("📥 Loading model from HuggingFace...")
             try:
                 self.model = VGGT.from_pretrained("facebook/VGGT-1B").to(self.device)
             except Exception as e:
-                print(f"⚠️ Could not load model: {e}")
+                print(f"⚠️ Could not load model from HuggingFace: {e}")
+                print("💡 Run 'vggt download' to download model weights")
                 self.model = None
+                return
 
         if self.model:
             self.model.eval()
@@ -76,14 +94,31 @@ class VGGTProcessor:
 
     def process_images(self, images: List[np.ndarray]) -> Union[List[np.ndarray], Dict[str, Any]]:
         """
-        Process images through VGGT
+        Process images through VGGT with validation and error handling
 
         Args:
             images: List of images as numpy arrays (H, W, 3)
 
         Returns:
             Dict containing depth maps, camera poses, and point cloud, or list of depth maps as fallback
+
+        Raises:
+            ValueError: If input images are invalid
+            RuntimeError: If processing fails
         """
+        # Input validation
+        if not images:
+            raise ValueError("Empty image list provided")
+
+        if not isinstance(images, list):
+            raise ValueError(f"Expected list of images, got {type(images)}")
+
+        for i, img in enumerate(images):
+            if not isinstance(img, np.ndarray):
+                raise ValueError(f"Image {i} is not a numpy array: {type(img)}")
+            if img.ndim != 3 or img.shape[2] != 3:
+                raise ValueError(f"Image {i} has invalid shape {img.shape}, expected (H, W, 3)")
+
         # Ensure model is loaded
         if self.model is None:
             self.load_model()

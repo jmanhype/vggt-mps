@@ -176,7 +176,7 @@ jobs:
 
             === CONSTRAINTS ===
 
-            - Max turns: ${{ matrix.depth == 1 && '25' || matrix.depth == 2 && '40' || '30' }}
+            - Max turns: ${{ matrix.depth == 1 && '40' || matrix.depth == 2 && '50' || '40' }}
             - Must create execution trace at .rlm-trace/depth-${{ matrix.depth }}-*.md
             - Must check for conflicts before committing
             - Must validate changes with tests (if available)
@@ -195,7 +195,7 @@ jobs:
             the previous depth's output stored in execution traces.
 
           claude_args: |
-            --max-turns ${{ matrix.depth == 1 && 25 || matrix.depth == 2 && 40 || 30 }}
+            --max-turns ${{ matrix.depth == 1 && 40 || matrix.depth == 2 && 50 || 40 }}
             --model claude-sonnet-4-5-20250929
             --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(gh:*),Bash(pytest:*),Bash(python:*),Bash(make:*),Bash(test:*),Bash(npm:*)"
             --system-prompt "You are a Recursive Language Model (RLM) at depth ${{ matrix.depth }}. Use execution traces to coordinate with other depths. Implement RLM patterns: PEEK, GREP, PARTITION, MAP, AGGREGATE. Focus on conflict detection and resolution."
@@ -205,20 +205,20 @@ jobs:
         run: |
           mkdir -p .rlm-trace
           # Trace should have been created by Claude Code
-          if [ -f .rlm-trace/depth-${{ matrix.depth }}-*.md ]; then
+          if ls .rlm-trace/depth-${{ matrix.depth }}-*.md 1> /dev/null 2>&1; then
             echo "✓ Execution trace saved"
             cat .rlm-trace/depth-${{ matrix.depth }}-*.md
           else
             echo "⚠️ No execution trace found - creating fallback"
             cat > .rlm-trace/depth-${{ matrix.depth }}-fallback.md << 'EOF'
-            # RLM Execution Trace - Depth ${{ matrix.depth }} (Fallback)
+# RLM Execution Trace - Depth ${{ matrix.depth }} (Fallback)
 
-            ## Status
-            No trace was created by the RLM execution.
+## Status
+No trace was created by the RLM execution.
 
-            ## Timestamp
-            $(date -u +"%Y-%m-%dT%H:%M:%SZ")
-            EOF
+## Timestamp
+$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+EOF
           fi
 
       - name: Upload execution traces

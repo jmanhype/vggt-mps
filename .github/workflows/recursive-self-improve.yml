@@ -210,15 +210,13 @@ jobs:
             cat .rlm-trace/depth-${{ matrix.depth }}-*.md
           else
             echo "⚠️ No execution trace found - creating fallback"
-            cat > .rlm-trace/depth-${{ matrix.depth }}-fallback.md << 'EOF'
-# RLM Execution Trace - Depth ${{ matrix.depth }} (Fallback)
-
-## Status
-No trace was created by the RLM execution.
-
-## Timestamp
-$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-EOF
+            echo "# RLM Execution Trace - Depth ${{ matrix.depth }} (Fallback)" > .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+            echo "" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+            echo "## Status" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+            echo "No trace was created by the RLM execution." >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+            echo "" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+            echo "## Timestamp" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+            echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
           fi
 
       - name: Upload execution traces

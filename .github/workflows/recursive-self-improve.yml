@@ -1,0 +1,304 @@
+name: Recursive Self-Improve (RLM)
+
+on:
+  schedule:
+    # Twice daily: 06:00 and 18:00 America/Chicago (11:00 and 23:00 UTC)
+    - cron: "0 11 * * *"
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+    inputs:
+      max_depth:
+        description: 'Maximum recursive depth'
+        required: false
+        default: '3'
+      focus_area:
+        description: 'Focus area (tests, docs, perf, security, or auto)'
+        required: false
+        default: 'auto'
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  recursive-improve:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        depth: [1, 2, 3]
+      max-parallel: 1  # Sequential execution for dependency tracking
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for conflict detection
+
+      - name: Setup execution trace
+        run: |
+          mkdir -p .rlm-trace
+          echo "RLM_DEPTH=${{ matrix.depth }}" >> $GITHUB_ENV
+          echo "RLM_RUN_ID=${{ github.run_id }}" >> $GITHUB_ENV
+          echo "RLM_START_TIME=$(date -u +%s)" >> $GITHUB_ENV
+
+      - name: "RLM Depth ${{ matrix.depth }} - Analysis & Implementation"
+        id: rlm-step
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          show_full_output: true
+          prompt: |
+            You are a RECURSIVE LANGUAGE MODEL (RLM) conducting self-improvement.
+
+            === RLM METADATA ===
+            Current Depth: ${{ matrix.depth }}
+            Max Depth: ${{ github.event.inputs.max_depth || 3 }}
+            Focus Area: ${{ github.event.inputs.focus_area || 'auto' }}
+            Run ID: ${{ github.run_id }}
+            Parent Commit: ${{ github.sha }}
+
+            === RECURSIVE EXECUTION STRATEGY (inspired by Zhang & Khattab 2025) ===
+
+            You operate as an RLM with REPL-style interaction over the codebase:
+
+            DEPTH 1 (ROOT LM) - PEEK & PARTITION:
+            - Use Glob to understand repository structure (PEEK)
+            - Read key files (README, main code, tests) selectively
+            - Use Grep to find TODOs, FIXMEs, error patterns
+            - PARTITION work into 2-4 focused improvement areas
+            - Create execution trace: .rlm-trace/depth-1-plan.md
+
+            DEPTH 2 (RECURSIVE LM) - MAP & IMPLEMENT:
+            - Read execution trace from depth 1: .rlm-trace/depth-1-plan.md
+            - GREP for specific patterns identified by depth 1
+            - Implement fixes for ONE partition from depth 1
+            - Create execution trace: .rlm-trace/depth-2-changes-<area>.md
+            - Check for conflicts with other depth-2 changes
+
+            DEPTH 3 (AGGREGATION LM) - INTEGRATE & RESOLVE:
+            - Read all execution traces from depth 1 and 2
+            - DETECT conflicts between parallel changes
+            - RESOLVE conflicts using 3-way merge strategy
+            - VALIDATE all changes work together
+            - Create final trace: .rlm-trace/depth-3-integration.md
+
+            === EXECUTION TRACE FORMAT ===
+
+            Each depth MUST create a trace file with:
+
+            ```markdown
+            # RLM Execution Trace - Depth ${{ matrix.depth }}
+
+            ## Input Context
+            - Parent Commit: <commit-hash>
+            - Focus Area: <area>
+            - Files Analyzed: [list]
+
+            ## Discoveries (PEEK/GREP results)
+            - Pattern 1: <what was found>
+            - Pattern 2: <what was found>
+
+            ## Actions Taken (MAP/IMPLEMENT)
+            - Action 1: <what was changed>
+            - Action 2: <what was changed>
+
+            ## Conflicts Detected
+            - Conflict 1: <description>
+            - Resolution: <how it was resolved>
+
+            ## Validation
+            - Tests run: <commands>
+            - Tests passed: <yes/no>
+
+            ## Receipt
+            Hash: <sha256 of changes>
+            ```
+
+            === CONFLICT RESOLUTION PROTOCOL ===
+
+            When conflicts are detected:
+
+            1. **Detection**: Check for overlapping file changes across depths
+               ```bash
+               # Compare changed files between traces
+               comm -12 <(sort depth-1-files.txt) <(sort depth-2-files.txt)
+               ```
+
+            2. **Analysis**: Determine conflict type
+               - OVERLAPPING: Same lines modified differently
+               - DEPENDENT: Changes depend on each other's order
+               - SEMANTIC: Changes conflict in meaning, not text
+
+            3. **Resolution Strategy**:
+               - OVERLAPPING → 3-way merge with base commit
+               - DEPENDENT → Reorder changes, rebase if needed
+               - SEMANTIC → Use newer depth's understanding (depth 3 > 2 > 1)
+
+            4. **Validation**: After resolution, run tests
+               ```bash
+               pytest tests/ || make test || python -m pytest
+               ```
+
+            === EXECUTION FEEDBACK LOOP ===
+
+            Use execution traces to inform deeper recursion:
+
+            ```python
+            # Pseudo-code for how traces guide recursion
+            if depth == 1:
+                analysis = peek_grep_partition(codebase)
+                write_trace(analysis)
+                decide_partitions()  # Creates work for depth 2
+
+            elif depth == 2:
+                parent_analysis = read_trace(depth=1)
+                my_partition = get_assigned_partition()
+                changes = implement_partition(my_partition)
+                conflicts = detect_conflicts_with_siblings()
+                write_trace(changes, conflicts)
+
+            elif depth == 3:
+                all_changes = read_all_traces(depth=2)
+                conflicts = analyze_conflicts(all_changes)
+                resolved = resolve_conflicts(conflicts)
+                integrated = validate_integration(resolved)
+                write_trace(integrated)
+                create_pr()
+            ```
+
+            === CURRENT TASK (Depth ${{ matrix.depth }}) ===
+
+            ${{ matrix.depth == 1 && 'PEEK, GREP, PARTITION the codebase. Identify 2-4 improvement areas. Create execution trace.' || '' }}
+            ${{ matrix.depth == 2 && 'Read depth-1 trace. Implement ONE partition. Detect conflicts. Create execution trace.' || '' }}
+            ${{ matrix.depth == 3 && 'Read all traces. Resolve conflicts. Integrate changes. Validate. Create PR with receipt.' || '' }}
+
+            === CONSTRAINTS ===
+
+            - Max turns: ${{ matrix.depth == 1 && '25' || matrix.depth == 2 && '40' || '30' }}
+            - Must create execution trace at .rlm-trace/depth-${{ matrix.depth }}-*.md
+            - Must check for conflicts before committing
+            - Must validate changes with tests (if available)
+            - Must include receipt hash in final trace
+
+            === TOOLS PREFERENCE ===
+
+            - PEEK: Use Glob, Read (selective)
+            - GREP: Use Grep tool (not bash grep)
+            - PARTITION: Use analysis, not file operations
+            - MAP: Use Edit/Write for changes
+            - VALIDATE: Use Bash for test execution
+
+            Remember: You are a recursive language model. Your execution trace is the context
+            for deeper recursion levels. Think like a REPL environment - each depth builds on
+            the previous depth's output stored in execution traces.
+
+          claude_args: |
+            --max-turns ${{ matrix.depth == 1 && 25 || matrix.depth == 2 && 40 || 30 }}
+            --model claude-sonnet-4-5-20250929
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(gh:*),Bash(pytest:*),Bash(python:*),Bash(make:*),Bash(test:*),Bash(npm:*)"
+            --system-prompt "You are a Recursive Language Model (RLM) at depth ${{ matrix.depth }}. Use execution traces to coordinate with other depths. Implement RLM patterns: PEEK, GREP, PARTITION, MAP, AGGREGATE. Focus on conflict detection and resolution."
+
+      - name: Save execution trace
+        if: always()
+        run: |
+          mkdir -p .rlm-trace
+          # Trace should have been created by Claude Code
+          if [ -f .rlm-trace/depth-${{ matrix.depth }}-*.md ]; then
+            echo "✓ Execution trace saved"
+            cat .rlm-trace/depth-${{ matrix.depth }}-*.md
+          else
+            echo "⚠️ No execution trace found - creating fallback"
+            cat > .rlm-trace/depth-${{ matrix.depth }}-fallback.md << 'EOF'
+            # RLM Execution Trace - Depth ${{ matrix.depth }} (Fallback)
+
+            ## Status
+            No trace was created by the RLM execution.
+
+            ## Timestamp
+            $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            EOF
+          fi
+
+      - name: Upload execution traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rlm-traces-depth-${{ matrix.depth }}
+          path: .rlm-trace/
+          retention-days: 30
+
+  aggregate-and-pr:
+    needs: recursive-improve
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all execution traces
+        uses: actions/download-artifact@v4
+        with:
+          pattern: rlm-traces-*
+          path: .rlm-trace/
+          merge-multiple: true
+
+      - name: Analyze traces and create PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== RLM Execution Summary ==="
+
+          # Check if any depth created a PR already
+          EXISTING_PR=$(gh pr list --head $(git branch --show-current) --json number --jq '.[0].number' || echo "")
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "✓ PR already created by depth 3: #$EXISTING_PR"
+
+            # Trigger Qodo review
+            gh pr comment $EXISTING_PR --body "/describe"
+            gh pr comment $EXISTING_PR --body "/review"
+
+            echo "✓ Qodo review triggered on PR #$EXISTING_PR"
+          else
+            echo "⚠️ No PR was created - checking execution traces..."
+
+            # List all traces
+            find .rlm-trace -name "*.md" -type f | while read trace; do
+              echo "--- $(basename $trace) ---"
+              cat "$trace"
+              echo ""
+            done
+          fi
+
+      - name: Comment execution traces on PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER=$(gh pr list --head $(git branch --show-current) --json number --jq '.[0].number' || echo "")
+
+          if [ -n "$PR_NUMBER" ]; then
+            # Create summary comment with all traces
+            {
+              echo "## 🔄 Recursive Execution Traces"
+              echo ""
+              echo "This PR was created through recursive self-improvement with execution feedback."
+              echo ""
+              find .rlm-trace -name "*.md" -type f | sort | while read trace; do
+                echo "<details>"
+                echo "<summary>📋 $(basename $trace)</summary>"
+                echo ""
+                echo '```markdown'
+                cat "$trace"
+                echo '```'
+                echo "</details>"
+                echo ""
+              done
+            } > /tmp/trace-comment.md
+
+            gh pr comment $PR_NUMBER --body-file /tmp/trace-comment.md
+            echo "✓ Posted execution traces to PR #$PR_NUMBER"
+          fi

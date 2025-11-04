@@ -54,5 +54,5 @@ jobs:
 
             Remember to check CLAUDE.md for additional constraints.
           claude_args: |
-            --max-turns 30
+            --max-turns 40
             --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(gh:*)"

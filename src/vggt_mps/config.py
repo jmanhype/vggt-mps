@@ -30,8 +30,14 @@ MODEL_CONFIG = {
 }
 
 # Device configuration
-def get_device():
-    """Get the best available device"""
+def get_device() -> torch.device:
+    """
+    Get the best available device.
+
+    Returns:
+        torch.device: MPS if available on Apple Silicon, CUDA if available,
+                     otherwise CPU.
+    """
     if torch.backends.mps.is_available():
         return torch.device("mps")
     elif torch.cuda.is_available():
@@ -91,18 +97,32 @@ LOGGING = {
 }
 
 # Environment variables override
-def load_from_env():
-    """Load configuration from environment variables"""
+def load_from_env() -> None:
+    """
+    Load configuration from environment variables.
+
+    Supported environment variables:
+        USE_SPARSE_ATTENTION: Enable/disable sparse attention (true/false)
+        COVISIBILITY_THRESHOLD: Threshold for covisibility detection (float)
+        WEB_PORT: Port for web interface (int)
+        WEB_SHARE: Enable public sharing for Gradio (true/false)
+    """
     global SPARSE_CONFIG, WEB_CONFIG
 
     if os.getenv("USE_SPARSE_ATTENTION"):
         SPARSE_CONFIG["enabled"] = os.getenv("USE_SPARSE_ATTENTION").lower() == "true"
 
     if os.getenv("COVISIBILITY_THRESHOLD"):
-        SPARSE_CONFIG["covisibility_threshold"] = float(os.getenv("COVISIBILITY_THRESHOLD"))
+        try:
+            SPARSE_CONFIG["covisibility_threshold"] = float(os.getenv("COVISIBILITY_THRESHOLD"))
+        except ValueError as e:
+            print(f"⚠️ Invalid COVISIBILITY_THRESHOLD: {e}")
 
     if os.getenv("WEB_PORT"):
-        WEB_CONFIG["default_port"] = int(os.getenv("WEB_PORT"))
+        try:
+            WEB_CONFIG["default_port"] = int(os.getenv("WEB_PORT"))
+        except ValueError as e:
+            print(f"⚠️ Invalid WEB_PORT: {e}")
 
     if os.getenv("WEB_SHARE"):
         WEB_CONFIG["share"] = os.getenv("WEB_SHARE").lower() == "true"

@@ -101,8 +101,15 @@ def create_visualizations(
     return output_files
 
 
-def export_ply(points: np.ndarray, output_path: Path, colors: Optional[np.ndarray] = None):
-    """Export point cloud to PLY format"""
+def export_ply(points: np.ndarray, output_path: Path, colors: Optional[np.ndarray] = None) -> None:
+    """
+    Export point cloud to PLY format.
+
+    Args:
+        points: Nx3 array of 3D points
+        output_path: Path to save PLY file
+        colors: Optional Nx3 array of RGB colors (0-255)
+    """
 
     # Prepare header
     num_points = len(points)

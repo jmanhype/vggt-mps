@@ -20,8 +20,15 @@ from vggt_mps.vggt_core import VGGTProcessor
 from vggt_mps.visualization import create_visualizations
 
 
-def run_demo(args):
-    """Run demo with sample images"""
+def run_demo(args) -> None:
+    """
+    Run demo with sample images.
+
+    Args:
+        args: Command-line arguments containing:
+            - images: Number of images to process
+            - kitchen: Whether to use kitchen dataset
+    """
     print("=" * 60)
     print("🚀 VGGT 3D Reconstruction Demo")
     print("=" * 60)
@@ -42,18 +49,34 @@ def run_demo(args):
 
         if not list(test_dir.glob("*.jpg")):
             print("Creating test images...")
-            from utils.create_test_images import create_test_scenes
-            create_test_scenes(test_dir)
+            try:
+                from utils.create_test_images import create_test_scenes
+                create_test_scenes(test_dir)
+            except Exception as e:
+                print(f"⚠️ Could not create test images: {e}")
+                print("   Please provide your own images in the data/ directory.")
+                return
 
         image_paths = sorted(test_dir.glob("*.jpg"))[:args.images]
+        if not image_paths:
+            print("❌ No images found! Please add images to the data/ directory.")
+            return
         print(f"📸 Using test images: {len(image_paths)} images")
 
     # Load and process images
     images = []
     for path in image_paths:
-        img = Image.open(path).convert('RGB')
-        img_resized = img.resize((CAMERA_CONFIG["image_width"], CAMERA_CONFIG["image_height"]))
-        images.append(np.array(img_resized))
+        try:
+            img = Image.open(path).convert('RGB')
+            img_resized = img.resize((CAMERA_CONFIG["image_width"], CAMERA_CONFIG["image_height"]))
+            images.append(np.array(img_resized))
+        except Exception as e:
+            print(f"⚠️ Could not load image {path}: {e}")
+            continue
+
+    if not images:
+        print("❌ No valid images could be loaded!")
+        return
 
     # Check if model is available
     if not is_model_available():
@@ -75,13 +98,16 @@ def run_demo(args):
 
     # Create visualizations
     print("\n📊 Creating visualizations...")
-    create_visualizations(images, depth_maps, OUTPUT_DIR)
+    try:
+        output_files = create_visualizations(images, depth_maps, OUTPUT_DIR)
 
-    print("\n" + "=" * 60)
-    print("✅ Demo complete!")
-    print(f"📁 Results saved to: {OUTPUT_DIR}")
-    print("   - input_views.png")
-    print("   - depth_maps.png")
-    print("   - 3d_reconstruction.png")
-    print("   - point_cloud.ply")
-    print("=" * 60)
+        print("\n" + "=" * 60)
+        print("✅ Demo complete!")
+        print(f"📁 Results saved to: {OUTPUT_DIR}")
+        for file_path in output_files:
+            print(f"   - {file_path.name}")
+        print("=" * 60)
+    except Exception as e:
+        print(f"\n⚠️ Error creating visualizations: {e}")
+        print("   Results may be incomplete.")
+        print("=" * 60)

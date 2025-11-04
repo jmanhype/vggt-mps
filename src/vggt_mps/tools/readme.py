@@ -718,8 +718,6 @@ def vggt_visualize_point_tracks(
             vis = vis_score[0, i].float().cpu().numpy()     # [num_query_points]
             conf = conf_score[0, i].float().cpu().numpy()  # [num_query_points]
             
-            # Debug shapes
-            log_messages.append(f"Debug - tracks shape: {tracks.shape}, vis shape: {vis.shape}, conf shape: {conf.shape}")
             
             for j, (track_point, visibility, confidence) in enumerate(zip(tracks, vis, conf)):
                 if visibility > visibility_threshold:  # Only show visible tracks
@@ -777,14 +775,6 @@ def vggt_visualize_point_tracks(
 
     # Print track information to log
     log_messages.append("Track Information:")
-    # Debug logging for tensor structure
-    log_messages.append(f"DEBUG: track_list type: {type(track_list)}, length: {len(track_list) if isinstance(track_list, (list, tuple)) else 'N/A'}")
-    if len(track_list) > 0:
-        log_messages.append(f"DEBUG: track_list[0] type: {type(track_list[0])}, shape: {getattr(track_list[0], 'shape', 'N/A')}")
-        if hasattr(track_list[0], 'shape') and len(track_list[0].shape) > 0:
-            log_messages.append(f"DEBUG: track_list[0] shape: {track_list[0].shape}")
-    log_messages.append(f"DEBUG: vis_score shape: {getattr(vis_score, 'shape', 'N/A')}")
-    log_messages.append(f"DEBUG: conf_score shape: {getattr(conf_score, 'shape', 'N/A')}")
     
     for j in range(len(query_points)):
         log_messages.append(f"Query Point {j+1}: ({query_points[j][0]:.1f}, {query_points[j][1]:.1f})")

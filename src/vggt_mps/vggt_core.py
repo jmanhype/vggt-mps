@@ -31,18 +31,24 @@ class VGGTProcessor:
 
     def load_model(self, model_path: Optional[Path] = None) -> None:
         """
-        Load VGGT model
+        Load VGGT model with robust error handling.
 
         Args:
-            model_path: Optional path to model weights
+            model_path: Optional path to model weights. If not provided,
+                       will search default locations and fall back to HuggingFace.
+
+        Raises:
+            ImportError: If VGGT module cannot be imported (handled gracefully)
+            RuntimeError: If model loading fails completely
         """
         if self.model is not None:
             return  # Already loaded
 
         try:
             from vggt.models.vggt import VGGT
-        except ImportError:
-            print("⚠️ VGGT module not found. Using simulated mode.")
+        except ImportError as e:
+            print(f"⚠️ VGGT module not found: {e}")
+            print("   Using simulated mode for testing.")
             return
 
         if model_path is None:
@@ -58,16 +64,23 @@ class VGGTProcessor:
 
         if model_path and model_path.exists():
             print(f"📂 Loading model from: {model_path}")
-            self.model = VGGT()
-            checkpoint = torch.load(model_path, map_location=self.device)
-            self.model.load_state_dict(checkpoint)
-            self.model = self.model.to(self.device)
-        else:
+            try:
+                self.model = VGGT()
+                checkpoint = torch.load(model_path, map_location=self.device, weights_only=True)
+                self.model.load_state_dict(checkpoint)
+                self.model = self.model.to(self.device)
+            except Exception as e:
+                print(f"⚠️ Error loading model from disk: {e}")
+                print("   Attempting to load from HuggingFace...")
+                model_path = None  # Trigger HuggingFace fallback
+
+        if model_path is None or not model_path.exists():
             print("📥 Loading model from HuggingFace...")
             try:
                 self.model = VGGT.from_pretrained("facebook/VGGT-1B").to(self.device)
             except Exception as e:
-                print(f"⚠️ Could not load model: {e}")
+                print(f"⚠️ Could not load model from HuggingFace: {e}")
+                print("   Run 'vggt download' to download the model manually.")
                 self.model = None
 
         if self.model:
@@ -94,11 +107,13 @@ class VGGTProcessor:
             return self._simulate_depth(images)
 
         # Process with real model
+        temp_dir = None
         try:
             from vggt.utils.load_fn import load_and_preprocess_images
 
             # Save images temporarily for VGGT loader
             import tempfile
+            import shutil
             temp_dir = Path(tempfile.mkdtemp())
             temp_paths = []
 
@@ -125,11 +140,6 @@ class VGGTProcessor:
             depth_tensor = predictions['depth'].cpu().numpy()
             depth_maps = [depth_tensor[0, i, :, :, 0] for i in range(depth_tensor.shape[1])]
 
-            # Clean up temp files
-            for path in temp_paths:
-                Path(path).unlink()
-            temp_dir.rmdir()
-
             # Return full predictions dict if available
             result = {
                 'depth_maps': depth_maps,
@@ -141,7 +151,17 @@ class VGGTProcessor:
 
         except Exception as e:
             print(f"⚠️ Error processing with real model: {e}")
+            print(f"   Falling back to simulated depth maps.")
             return self._simulate_depth(images)
+
+        finally:
+            # Clean up temp files
+            if temp_dir is not None and temp_dir.exists():
+                try:
+                    import shutil
+                    shutil.rmtree(temp_dir)
+                except Exception as cleanup_error:
+                    print(f"⚠️ Warning: Could not clean up temp directory: {cleanup_error}")
 
     def _simulate_depth(self, images: List[np.ndarray]) -> List[np.ndarray]:
         """

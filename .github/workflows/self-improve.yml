@@ -53,4 +53,6 @@ jobs:
                - Summarize what was fixed and why
 
             Remember to check CLAUDE.md for additional constraints.
-          claude_args: "--max-turns 30"
+          claude_args: |
+            --max-turns 30
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(gh:*)"

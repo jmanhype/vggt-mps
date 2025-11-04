@@ -62,10 +62,10 @@ class VGGTProcessor:
                     model_path = path
                     break
 
-        # Flag to track if local loading failed
-        local_load_failed = False
+        # Try loading from local path if provided
+        load_from_local = model_path is not None and model_path.exists()
 
-        if model_path and model_path.exists():
+        if load_from_local:
             print(f"📂 Loading model from: {model_path}")
             try:
                 self.model = VGGT()
@@ -77,16 +77,19 @@ class VGGTProcessor:
 
                 self.model.load_state_dict(checkpoint)
                 self.model = self.model.to(self.device)
+                print("✅ Model loaded successfully from local path!")
+                return  # Success - exit early
             except Exception as e:
                 print(f"⚠️ Error loading model from disk: {e}")
                 print("   Attempting to load from HuggingFace...")
                 self.model = None  # Clear corrupted model state
-                local_load_failed = True
 
-        if model_path is None or local_load_failed:
+        # Try HuggingFace fallback if local loading failed or no path provided
+        if self.model is None:
             print("📥 Loading model from HuggingFace...")
             try:
                 self.model = VGGT.from_pretrained("facebook/VGGT-1B").to(self.device)
+                print("✅ Model loaded successfully from HuggingFace!")
             except Exception as e:
                 print(f"⚠️ Could not load model from HuggingFace: {e}")
                 print("   Run 'vggt download' to download the model manually.")
@@ -94,7 +97,6 @@ class VGGTProcessor:
 
         if self.model:
             self.model.eval()
-            print("✅ Model loaded successfully!")
 
     def process_images(self, images: List[np.ndarray]) -> Union[List[np.ndarray], Dict[str, Any]]:
         """

@@ -9,6 +9,7 @@ from typing import Optional
 import torch
 
 # Project paths
+# File is at: src/vggt_mps/config.py
 # __file__ is in src/vggt_mps/config.py, so parent.parent.parent gets project root
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 SRC_DIR = PROJECT_ROOT / "src"

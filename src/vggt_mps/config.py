@@ -16,13 +16,14 @@ import torch
 #   .parent.parent.parent -> project root
 # This works for: pip install, editable install (pip install -e .), and direct execution
 PROJECT_ROOT = Path(__file__).parent.parent.parent
+
 SRC_DIR = PROJECT_ROOT / "src"
 DATA_DIR = PROJECT_ROOT / "data"
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
 MODEL_DIR = PROJECT_ROOT / "models"
 REPO_DIR = PROJECT_ROOT / "repo"
 
-# Validate path calculation
+# Validate path calculation - check for expected project markers
 if not (PROJECT_ROOT / "src").exists():
     # Fallback for edge cases (e.g., single-file script execution)
     import warnings

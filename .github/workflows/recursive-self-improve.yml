@@ -181,10 +181,11 @@ jobs:
 
             - Max turns: ${{ matrix.depth == 1 && '40' || matrix.depth == 2 && '50' || '40' }}
             - Must create execution trace at .rlm-trace/depth-${{ matrix.depth }}-*.md
-            - CRITICAL: After creating trace file, commit it to git so it persists:
+            - CRITICAL: After creating trace file, commit AND PUSH it to git so it persists:
               ```bash
               git add .rlm-trace/
               git commit -m "chore: add depth-${{ matrix.depth }} execution trace [skip ci]"
+              git push origin main
               ```
             - Must check for conflicts before committing other changes
             - Must validate changes with tests (if available)

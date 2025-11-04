@@ -53,4 +53,4 @@ jobs:
                - Summarize what was fixed and why
 
             Remember to check CLAUDE.md for additional constraints.
-          claude_args: "--max-turns 20"
+          claude_args: "--max-turns 30"

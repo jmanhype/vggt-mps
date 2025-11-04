@@ -25,34 +25,76 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           show_full_output: true
           prompt: |
-            You are analyzing this repository for self-improvement opportunities. Follow these steps:
+            You are a SENIOR ENGINEER conducting recursive self-improvement analysis on this repository.
 
-            1. **Project Summary**: Read the README and provide a one-paragraph summary of what this project does.
+            GOAL: Identify and fix the most impactful gaps in this codebase
+            PATTERN: Recursive Language Model (RLM) - explore, partition, recurse, fix
 
-            2. **Missing Baseline Files**: Check for and identify any missing:
-               - README quickstart section
-               - LICENSE file
-               - SECURITY.md
-               - CODEOWNERS file
-               - Basic CI workflow (if appropriate)
+            === YOUR APPROACH (RLM Strategy) ===
 
-            3. **Dependency & Build Issues**:
-               - Review dependency files (requirements.txt, package.json, etc.)
-               - Check for outdated or vulnerable dependencies
-               - Look for build or configuration issues
-               - Propose the smallest safe improvements without changing public APIs
+            1. PEEK: Get a high-level understanding
+               - Use Glob to see repository structure
+               - Read key files (README, main modules, tests)
+               - Understand what this project does and how it's organized
 
-            4. **Implementation**:
-               - Implement ONLY documentation, CI, or metadata fixes
-               - DO NOT modify core functionality or public APIs
-               - Follow the guardrails in CLAUDE.md
+            2. EXPLORE: Look for gaps using your engineering judgment
+               Examples of gaps you might find:
+               - Missing or unclear documentation
+               - Code quality issues (duplication, complexity, error handling)
+               - Missing tests or low test coverage
+               - Performance bottlenecks
+               - Security vulnerabilities
+               - Outdated dependencies
+               - Missing error handling
+               - Architectural issues
+               - Dead code or unused imports
+               - Missing type hints
+               - Unclear APIs
+               - Build/deployment issues
 
-            5. **Create Pull Request**:
-               - Open a PR with your changes
-               - Include a receipt line in the format: `Receipt: <hash of changes>`
-               - Summarize what was fixed and why
+            3. PARTITION: Recursively analyze the most important gaps
+               - What is the impact? (user-facing? developer experience? performance?)
+               - What is the effort? (quick fix? architectural change?)
+               - What is the risk? (safe? could break things?)
+               - Prioritize HIGH IMPACT + LOW RISK improvements
 
-            Remember to check CLAUDE.md for additional constraints.
+            4. IMPLEMENT: Fix 2-4 of the highest-impact gaps
+               - Keep changes focused and atomic
+               - Test that changes work (run tests if available)
+               - Follow existing code style
+               - Can include: code fixes, new tests, docs, refactoring, etc.
+
+            5. AGGREGATE: Create PR with your improvements
+               - Clear description of what gaps you found
+               - Why these improvements matter
+               - What the impact is (faster? safer? clearer?)
+               - Receipt: <hash of changes>
+
+            === CONSTRAINTS (from CLAUDE.md) ===
+            ✅ You CAN modify:
+               - Source code (for bug fixes, improvements, refactoring)
+               - Tests (add/fix tests)
+               - Documentation (add/improve docs)
+               - Configuration (fix build/deploy issues)
+               - Dependencies (with clear justification)
+
+            ❌ You MUST NOT:
+               - Break public APIs
+               - Make breaking changes without discussion
+               - Change behavior without justification
+               - Introduce new dependencies without reason
+
+            === EXECUTION TIPS (Think like an RLM) ===
+            - Use Glob to efficiently explore structure (don't read everything)
+            - Use Grep to find patterns (TODOs, error-prone code, duplicates)
+            - Read selectively (only files relevant to gaps you find)
+            - Partition work: analyze different aspects recursively
+            - Focus on IMPACT: what will make the biggest difference?
+            - Be surgical: fix what matters, leave the rest alone
+
+            Remember: You're autonomous. Decide what needs fixing and fix it.
           claude_args: |
-            --max-turns 40
-            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(gh:*)"
+            --max-turns 35
+            --model claude-3-5-sonnet-20241022
+            --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*),Bash(gh:*),Bash(pytest:*),Bash(python:*),Bash(make:*)"
+            --system-prompt "You are a senior software engineer conducting autonomous recursive code review. Use RLM patterns: peek, grep, partition, recurse. Prioritize high-impact improvements. Be surgical and focused."

@@ -5,24 +5,29 @@ This file defines what Claude Code is allowed to modify when performing automate
 ## Allowed Modifications
 
 Claude Code MAY modify:
-- Documentation files (README.md, docs/*, *.md)
-- CI/CD configurations (.github/workflows/*, .gitlab-ci.yml, etc.)
-- Metadata files (package.json, pyproject.toml, setup.py - metadata only)
-- License files
-- Security policies (SECURITY.md)
-- Code of Conduct
-- Contributing guidelines
-- GitHub-specific files (.gitignore, CODEOWNERS, etc.)
+- **Documentation files** (README.md, docs/*, *.md)
+- **Source code** for:
+  - Bug fixes and error handling
+  - Code quality improvements (remove duplication, add type hints)
+  - Performance optimizations
+  - Refactoring for clarity/maintainability
+  - Security fixes
+- **Test files** (add new tests, fix broken tests, improve coverage)
+- **CI/CD configurations** (.github/workflows/*, .gitlab-ci.yml, etc.)
+- **Configuration files** (build configs, linting rules, etc.)
+- **Metadata files** (package.json, pyproject.toml, setup.py)
+- **GitHub-specific files** (.gitignore, CODEOWNERS, etc.)
+- **Dependencies** (with clear justification for updates/additions)
 
 ## Restricted Modifications
 
-Claude Code MUST NOT modify without explicit approval:
-- Source code (src/*, lib/*, *.py, *.js, *.ts, etc.)
-- Test files
-- Configuration that affects runtime behavior
-- Database schemas or migrations
-- API definitions or contracts
-- Dependency versions (only suggest, don't auto-update)
+Claude Code MUST NOT:
+- **Break public APIs** or change function signatures without discussion
+- **Make breaking changes** to existing behavior
+- **Change core algorithms** without explaining rationale
+- **Remove features** without justification
+- **Add heavy dependencies** without clear need
+- **Modify production configuration** (database URLs, API keys, etc.)
 
 ## Exception: Issues Labeled `ai-implement`
 

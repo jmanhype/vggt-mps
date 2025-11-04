@@ -28,13 +28,12 @@ jobs:
     strategy:
       matrix:
         depth: [1, 2, 3]
-      max-parallel: 1  # Sequential execution for dependency tracking
-
+      max-parallel: 1  # Sequential execution to ensure depth order
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for conflict detection
+          fetch-depth: 0
 
       - name: Setup execution trace
         run: |
@@ -42,6 +41,10 @@ jobs:
           echo "RLM_DEPTH=${{ matrix.depth }}" >> $GITHUB_ENV
           echo "RLM_RUN_ID=${{ github.run_id }}" >> $GITHUB_ENV
           echo "RLM_START_TIME=$(date -u +%s)" >> $GITHUB_ENV
+
+          # Configure git for Claude Code to commit traces
+          git config user.name "Claude Code RLM"
+          git config user.email "claude-code-rlm@github-actions"
 
       - name: "RLM Depth ${{ matrix.depth }} - Analysis & Implementation"
         id: rlm-step
@@ -178,7 +181,12 @@ jobs:
 
             - Max turns: ${{ matrix.depth == 1 && '40' || matrix.depth == 2 && '50' || '40' }}
             - Must create execution trace at .rlm-trace/depth-${{ matrix.depth }}-*.md
-            - Must check for conflicts before committing
+            - CRITICAL: After creating trace file, commit it to git so it persists:
+              ```bash
+              git add .rlm-trace/
+              git commit -m "chore: add depth-${{ matrix.depth }} execution trace [skip ci]"
+              ```
+            - Must check for conflicts before committing other changes
             - Must validate changes with tests (if available)
             - Must include receipt hash in final trace
 

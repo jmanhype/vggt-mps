@@ -212,19 +212,29 @@ jobs:
         if: always()
         run: |
           mkdir -p .rlm-trace
-          # Trace should have been created by Claude Code
+
+          # Check if trace exists in filesystem
           if ls .rlm-trace/depth-${{ matrix.depth }}-*.md 1> /dev/null 2>&1; then
-            echo "✓ Execution trace saved"
+            echo "✓ Execution trace found in filesystem"
             cat .rlm-trace/depth-${{ matrix.depth }}-*.md
           else
-            echo "⚠️ No execution trace found - creating fallback"
-            echo "# RLM Execution Trace - Depth ${{ matrix.depth }} (Fallback)" > .rlm-trace/depth-${{ matrix.depth }}-fallback.md
-            echo "" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
-            echo "## Status" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
-            echo "No trace was created by the RLM execution." >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
-            echo "" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
-            echo "## Timestamp" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
-            echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+            # Check if Claude Code committed the trace to git
+            echo "📥 Checking git for committed trace files..."
+            git pull origin main || true
+
+            if ls .rlm-trace/depth-${{ matrix.depth }}-*.md 1> /dev/null 2>&1; then
+              echo "✓ Execution trace recovered from git"
+              cat .rlm-trace/depth-${{ matrix.depth }}-*.md
+            else
+              echo "⚠️ No execution trace found - creating fallback"
+              echo "# RLM Execution Trace - Depth ${{ matrix.depth }} (Fallback)" > .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+              echo "" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+              echo "## Status" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+              echo "No trace was created by the RLM execution." >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+              echo "" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+              echo "## Timestamp" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+              echo "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> .rlm-trace/depth-${{ matrix.depth }}-fallback.md
+            fi
           fi
 
       - name: Upload execution traces

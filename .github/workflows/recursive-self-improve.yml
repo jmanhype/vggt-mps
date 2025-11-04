@@ -1,6 +1,16 @@
 name: Recursive Self-Improve (RLM)
 
 on:
+  push:
+    branches:
+      - main
+      - '001-*'  # Allow testing on feature branches
+    paths:
+      - '.github/workflows/recursive-self-improve.yml'
+      - '**/*.py'
+      - '**/*.md'
+      - 'src/**'
+      - 'tests/**'
   schedule:
     # Twice daily: 06:00 and 18:00 America/Chicago (11:00 and 23:00 UTC)
     - cron: "0 11 * * *"

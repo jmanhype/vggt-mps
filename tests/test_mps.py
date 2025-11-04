@@ -10,7 +10,7 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from config import DEVICE
+from vggt_mps.config import DEVICE
 
 
 class TestMPSSupport(unittest.TestCase):

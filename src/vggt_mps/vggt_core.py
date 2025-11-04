@@ -6,7 +6,7 @@ import torch
 import numpy as np
 from PIL import Image
 from pathlib import Path
-from typing import List, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 import sys
 
 # Add VGGT repo to path
@@ -29,7 +29,7 @@ class VGGTProcessor:
         self.model = None
         self.dtype = torch.float32 if self.device.type == "mps" else torch.float16
 
-    def load_model(self, model_path: Optional[Path] = None):
+    def load_model(self, model_path: Optional[Path] = None) -> None:
         """
         Load VGGT model
 
@@ -74,7 +74,7 @@ class VGGTProcessor:
             self.model.eval()
             print("✅ Model loaded successfully!")
 
-    def process_images(self, images: List[np.ndarray]) -> Union[List[np.ndarray], Dict]:
+    def process_images(self, images: List[np.ndarray]) -> Union[List[np.ndarray], Dict[str, Any]]:
         """
         Process images through VGGT
 
@@ -82,7 +82,7 @@ class VGGTProcessor:
             images: List of images as numpy arrays (H, W, 3)
 
         Returns:
-            Depth maps and optionally other predictions
+            Dict containing depth maps, camera poses, and point cloud, or list of depth maps as fallback
         """
         # Ensure model is loaded
         if self.model is None:
@@ -144,7 +144,15 @@ class VGGTProcessor:
             return self._simulate_depth(images)
 
     def _simulate_depth(self, images: List[np.ndarray]) -> List[np.ndarray]:
-        """Generate simulated depth maps for testing"""
+        """
+        Generate simulated depth maps for testing
+
+        Args:
+            images: List of input images
+
+        Returns:
+            List of simulated depth maps
+        """
         depth_maps = []
         for img in images:
             if isinstance(img, np.ndarray):

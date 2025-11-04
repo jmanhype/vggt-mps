@@ -1,9 +1,13 @@
 """
 Download model command for VGGT-MPS
+
+Handles downloading the VGGT model weights from HuggingFace.
+Supports both direct download and huggingface_hub library.
 """
 
 import sys
 from pathlib import Path
+from typing import Any
 import urllib.request
 import os
 
@@ -13,8 +17,22 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from vggt_mps.config import MODEL_CONFIG, MODEL_DIR, get_model_path
 
 
-def download_model(args):
-    """Download VGGT model weights"""
+def download_model(args: Any) -> int:
+    """Download VGGT model weights from HuggingFace.
+
+    Args:
+        args: Argument namespace with:
+            - source (str): Download source ('huggingface' or 'direct')
+
+    Returns:
+        int: Exit code (0 for success, 1 for failure)
+
+    Example:
+        >>> from argparse import Namespace
+        >>> args = Namespace(source='huggingface')
+        >>> download_model(args)
+        0
+    """
     print("=" * 60)
     print("📥 VGGT Model Downloader")
     print("=" * 60)

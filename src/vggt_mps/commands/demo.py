@@ -1,9 +1,13 @@
 """
 Demo command for VGGT-MPS
+
+Provides demonstration functionality for the VGGT reconstruction pipeline
+with sample images or kitchen dataset.
 """
 
 import sys
 from pathlib import Path
+from typing import Any
 import torch
 import numpy as np
 from PIL import Image
@@ -20,8 +24,23 @@ from vggt_mps.vggt_core import VGGTProcessor
 from vggt_mps.visualization import create_visualizations
 
 
-def run_demo(args):
-    """Run demo with sample images"""
+def run_demo(args: Any) -> int:
+    """Run demo with sample images.
+
+    Args:
+        args: Argument namespace with:
+            - images (int): Number of images to process (2-8)
+            - kitchen (bool): Use kitchen dataset if True
+
+    Returns:
+        int: Exit code (0 for success, 1 for failure)
+
+    Example:
+        >>> from argparse import Namespace
+        >>> args = Namespace(images=2, kitchen=False)
+        >>> run_demo(args)
+        0
+    """
     print("=" * 60)
     print("🚀 VGGT 3D Reconstruction Demo")
     print("=" * 60)
@@ -85,3 +104,5 @@ def run_demo(args):
     print("   - 3d_reconstruction.png")
     print("   - point_cloud.ply")
     print("=" * 60)
+
+    return 0

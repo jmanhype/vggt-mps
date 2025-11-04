@@ -62,6 +62,9 @@ class VGGTProcessor:
                     model_path = path
                     break
 
+        # Flag to track if local loading failed
+        local_load_failed = False
+
         if model_path and model_path.exists():
             print(f"📂 Loading model from: {model_path}")
             try:
@@ -78,9 +81,9 @@ class VGGTProcessor:
                 print(f"⚠️ Error loading model from disk: {e}")
                 print("   Attempting to load from HuggingFace...")
                 self.model = None  # Clear corrupted model state
-                model_path = None  # Trigger HuggingFace fallback
+                local_load_failed = True
 
-        if model_path is None:
+        if model_path is None or local_load_failed:
             print("📥 Loading model from HuggingFace...")
             try:
                 self.model = VGGT.from_pretrained("facebook/VGGT-1B").to(self.device)

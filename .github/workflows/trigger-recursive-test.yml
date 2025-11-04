@@ -1,0 +1,43 @@
+name: Trigger Recursive Test
+
+on:
+  push:
+    branches:
+      - main
+      - '001-*'
+    paths:
+      - '.github/workflows/recursive-self-improve.yml'
+      - '.github/workflows/trigger-recursive-test.yml'
+      - '**/*.py'
+      - '**/*.md'
+      - 'src/**'
+      - 'tests/**'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  trigger-recursive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger recursive workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🚀 Triggering recursive self-improve workflow..."
+
+          gh workflow run recursive-self-improve.yml \
+            --repo ${{ github.repository }} \
+            --ref ${{ github.ref_name }} \
+            --field max_depth=3 \
+            --field focus_area=auto
+
+          echo "✅ Recursive workflow triggered!"
+          echo "View at: https://github.com/${{ github.repository }}/actions/workflows/recursive-self-improve.yml"
+
+          # Wait a moment for the workflow to queue
+          sleep 5
+
+          # Show the latest run
+          gh run list --workflow=recursive-self-improve.yml --limit 1

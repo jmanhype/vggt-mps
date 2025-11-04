@@ -9,7 +9,8 @@ from typing import Optional
 import torch
 
 # Project paths
-PROJECT_ROOT = Path(__file__).parent.parent
+# __file__ is in src/vggt_mps/config.py, so parent.parent.parent gets project root
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 DATA_DIR = PROJECT_ROOT / "data"
 OUTPUT_DIR = PROJECT_ROOT / "outputs"
@@ -30,8 +31,13 @@ MODEL_CONFIG = {
 }
 
 # Device configuration
-def get_device():
-    """Get the best available device"""
+def get_device() -> torch.device:
+    """
+    Get the best available device for computation
+
+    Returns:
+        torch.device: The optimal device (mps > cuda > cpu)
+    """
     if torch.backends.mps.is_available():
         return torch.device("mps")
     elif torch.cuda.is_available():
@@ -91,18 +97,32 @@ LOGGING = {
 }
 
 # Environment variables override
-def load_from_env():
-    """Load configuration from environment variables"""
+def load_from_env() -> None:
+    """
+    Load configuration from environment variables with validation
+
+    Environment variables:
+        USE_SPARSE_ATTENTION: Enable/disable sparse attention (true/false)
+        COVISIBILITY_THRESHOLD: Covisibility threshold (float)
+        WEB_PORT: Web interface port (int)
+        WEB_SHARE: Enable public sharing (true/false)
+    """
     global SPARSE_CONFIG, WEB_CONFIG
 
     if os.getenv("USE_SPARSE_ATTENTION"):
         SPARSE_CONFIG["enabled"] = os.getenv("USE_SPARSE_ATTENTION").lower() == "true"
 
     if os.getenv("COVISIBILITY_THRESHOLD"):
-        SPARSE_CONFIG["covisibility_threshold"] = float(os.getenv("COVISIBILITY_THRESHOLD"))
+        try:
+            SPARSE_CONFIG["covisibility_threshold"] = float(os.getenv("COVISIBILITY_THRESHOLD"))
+        except ValueError:
+            print("⚠️ Invalid COVISIBILITY_THRESHOLD value, using default")
 
     if os.getenv("WEB_PORT"):
-        WEB_CONFIG["default_port"] = int(os.getenv("WEB_PORT"))
+        try:
+            WEB_CONFIG["default_port"] = int(os.getenv("WEB_PORT"))
+        except ValueError:
+            print("⚠️ Invalid WEB_PORT value, using default")
 
     if os.getenv("WEB_SHARE"):
         WEB_CONFIG["share"] = os.getenv("WEB_SHARE").lower() == "true"

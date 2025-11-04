@@ -91,7 +91,7 @@ class Block(nn.Module):
             )
         elif self.training and self.sample_drop_ratio > 0.0:
             x = x + self.drop_path1(attn_residual_func(x, pos=pos))
-            x = x + self.drop_path1(ffn_residual_func(x))  # FIXME: drop_path2
+            x = x + self.drop_path2(ffn_residual_func(x))
         else:
             x = x + attn_residual_func(x, pos=pos)
             x = x + ffn_residual_func(x)

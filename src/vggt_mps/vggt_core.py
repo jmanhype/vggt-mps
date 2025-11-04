@@ -62,8 +62,11 @@ class VGGTProcessor:
                     model_path = path
                     break
 
+        # Flag to determine if we should try HuggingFace
+        # Set to True if: no local model found OR local loading fails
+        try_huggingface = False
+
         # Try to load from local path if available
-        local_load_failed = False
         if model_path and model_path.exists():
             print(f"📂 Loading model from: {model_path}")
             try:
@@ -81,11 +84,14 @@ class VGGTProcessor:
             except Exception as e:
                 print(f"⚠️ Failed to load local model: {e}")
                 print("💡 Trying HuggingFace fallback...")
-                local_load_failed = True
                 self.model = None  # Reset model before fallback
+                try_huggingface = True
+        else:
+            # No local model path available
+            try_huggingface = True
 
-        # Fall back to HuggingFace if no local model or local loading failed
-        if self.model is None and (model_path is None or not model_path.exists() or local_load_failed):
+        # Fall back to HuggingFace if flagged
+        if try_huggingface:
             print("📥 Loading model from HuggingFace...")
             try:
                 self.model = VGGT.from_pretrained("facebook/VGGT-1B").to(self.device)
@@ -131,10 +137,18 @@ class VGGTProcessor:
             print("📦 Model not loaded, attempting to load...")
             self.load_model()
 
-        # Verify model loaded successfully, otherwise fall back to simulated depth
-        if self.model is None:
-            print("⚠️ Using simulated depth (model not available)")
-            return self._simulate_depth(images)
+            # Validate model loaded successfully after load_model() call
+            if self.model is None:
+                print("⚠️ Model failed to load. Using simulated depth as fallback.")
+                return self._simulate_depth(images)
+
+            # Additional validation: ensure model is in eval mode and has required methods
+            try:
+                self.model.eval()
+            except AttributeError as e:
+                print(f"⚠️ Model validation failed: {e}")
+                print("   Model missing required methods. Using simulated depth as fallback.")
+                return self._simulate_depth(images)
 
         # Process with real model
         try:

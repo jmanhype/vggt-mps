@@ -19,11 +19,18 @@ OUTPUT_DIR = PROJECT_ROOT / "outputs"
 MODEL_DIR = PROJECT_ROOT / "models"
 REPO_DIR = PROJECT_ROOT / "repo"
 
-# Validate path calculation to catch edge cases
-if not (PROJECT_ROOT / "src").exists():
+# Validate PROJECT_ROOT calculation by checking for key project files
+# This ensures correctness across different installation methods:
+# - pip install: installed to site-packages
+# - editable install (pip install -e .): symlinked from source
+# - direct execution: run from source directory
+_validation_files = ["setup.py", "pyproject.toml", "README.md"]
+_missing_files = [f for f in _validation_files if not (PROJECT_ROOT / f).exists()]
+if _missing_files:
     import warnings
     warnings.warn(
-        f"PROJECT_ROOT calculation may be incorrect. Expected src/ directory at: {PROJECT_ROOT / 'src'}",
+        f"PROJECT_ROOT validation failed: missing {_missing_files} at {PROJECT_ROOT}. "
+        f"Path calculation may be incorrect for this installation method.",
         RuntimeWarning
     )
 

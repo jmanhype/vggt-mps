@@ -26,41 +26,42 @@ jobs:
         with:
           # Maintenance tasks focusing on code quality and bug fixes
           prompt: |
-            Perform weekly maintenance on this VGGT-MPS (3D Vision Agent) repository:
+            Perform weekly maintenance on this VGGT-MPS (3D Vision Agent) repository.
+
+            **IMPORTANT: Read CLAUDE.md first!**
+            This file contains the guardrails for what changes you can and cannot make.
+            Follow these constraints strictly.
 
             **Primary Goals:**
-            1. Code Quality & Best Practices
-               - Review Python code for PEP 8 compliance and type hints
-               - Check for potential bugs or error handling improvements
-               - Identify deprecated dependencies or API usage
-               - Look for opportunities to improve code clarity
-
-            2. Documentation
-               - Update README.md if features have changed
-               - Ensure code comments are accurate and helpful
-               - Check if examples in docs/ match current API
+            1. Documentation (see CLAUDE.md for allowed changes)
+               - Update README.md for accuracy and clarity
+               - Fix typos and improve docstrings
+               - Ensure examples match current API
                - Verify setup instructions are up-to-date
 
-            3. Testing & Dependencies
-               - Check requirements.txt and pyproject.toml for outdated packages
-               - Suggest test coverage improvements
-               - Review GitHub Actions workflows for optimization
+            2. CI/CD and Metadata (see CLAUDE.md for allowed changes)
+               - Improve GitHub Actions workflows
+               - Update metadata in pyproject.toml
+               - Optimize automation
 
-            4. Small Enhancements
-               - Identify quick wins for better user experience
-               - Suggest performance optimizations (especially for MPS)
-               - Look for opportunities to reduce code duplication
+            3. Code Quality - Non-Functional Only (see CLAUDE.md for allowed changes)
+               - Add type hints and docstrings
+               - Format code to PEP 8 standards
+               - Improve variable naming
+               - Add code comments for clarity
 
             **Constraints:**
-            - Focus on small, incremental improvements
-            - Do NOT make breaking changes
-            - Prioritize maintainability over new features
-            - Test any changes if possible
+            - MUST follow all guardrails in CLAUDE.md
+            - Focus on docs, CI, and metadata ONLY
+            - NO changes to core functionality
+            - NO dependency changes
+            - NO breaking changes
+            - Small, incremental improvements only
 
             **Output:**
             - Create a PR with your improvements
             - Use clear commit messages explaining each change
-            - Add a summary of what was improved and why
+            - Reference CLAUDE.md compliance in PR description
 
           # Create a PR automatically
           create_pr: true
@@ -89,9 +90,12 @@ jobs:
             ## Next Steps
             Please review the changes and merge if appropriate. You can also request modifications or close the PR if the changes aren't needed this week.
 
+            ## Guardrails
+            All changes comply with [CLAUDE.md](../CLAUDE.md) guardrails.
+
             ---
             *Generated on: ${{ github.run_id }}*
-            *Workflow: `weekly-self-improvement.yml`*
+            *Workflow: `self-improve.yml`*
 
           # Branch to create PR from
           branch_prefix: "auto-improve"

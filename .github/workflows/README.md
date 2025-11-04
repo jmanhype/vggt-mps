@@ -4,7 +4,7 @@ This directory contains automated workflows for the VGGT-MPS project.
 
 ## Available Workflows
 
-### 1. Weekly Self-Improvement (`weekly-self-improvement.yml`)
+### 1. Weekly Self-Improvement (`self-improve.yml`)
 
 An automated maintenance workflow that uses Claude Code to continuously improve the codebase.
 
@@ -13,9 +13,12 @@ An automated maintenance workflow that uses Claude Code to continuously improve 
 **What it does:**
 - Analyzes code for quality improvements and potential bugs
 - Reviews documentation for accuracy and completeness
-- Checks for outdated dependencies
-- Suggests small enhancements and optimizations
+- Improves CI/CD workflows and metadata
+- Suggests small non-breaking enhancements
 - Creates a pull request with improvements to the `develop` branch
+
+**Guardrails:**
+All changes are constrained by the [CLAUDE.md](../../CLAUDE.md) guardrails file, which limits Claude to docs, CI, and metadata changes only.
 
 **How it works:**
 1. The workflow runs on schedule (or manual trigger)
@@ -37,7 +40,7 @@ The `anthropics/claude-code-action` handles authentication automatically through
 
 **Customization:**
 
-To modify the maintenance tasks, edit the `prompt` section in `weekly-self-improvement.yml`:
+To modify the maintenance tasks, edit the `prompt` section in `self-improve.yml`:
 
 ```yaml
 with:
